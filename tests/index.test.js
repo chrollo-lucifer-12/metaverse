@@ -75,3 +75,38 @@ describe("User metadata endpoints", () => {
 
 
 })
+
+describe("user avatar information", () => {
+    let clerkIdGlobal, avatarIdGlobal;
+
+    beforeAll(async () => {
+        const clerkId = "user_" + v4();
+        clerkIdGlobal = clerkId;
+        const imageUrl = "image.jpg";
+        const name = "sahil";
+        const res =  await axios.post(`${BACKEND_URL}/api/v1/signup`, {
+            clerkId,
+            imageUrl,
+            name,
+            type : "admin"
+        })
+
+        const avatarRes = await axios.post(`${BACKEND_URL}/api/v1/admin/avatar`, {
+            clerkId : clerkId,
+            imageUrl : "sasdfsdf",
+            name : "gojo"
+        })
+
+        avatarIdGlobal = avatarRes.avatarId
+    })
+
+    test("get back avatar information for user", async () => {
+        const res =  await axios.get(`${BACKEND_URL}/api/v1/user/metadata/bulk?ids=[${clerkIdGlobal}]`);
+        expect(res.data.avatars.length).toBe(1);
+    })
+
+    test("available avatars lists the recently created avatar", async () => {
+        const res = await axios.get(`${BACKEND_URL}/api/v1/avatars`);
+        expect(res.data.avatars.length).not.toBe(0);
+    })
+})
