@@ -94,10 +94,10 @@ spaceRouter.post("/element", async (req, res) => {
 })
 
 spaceRouter.delete("/element", async (req, res) => {
-    const {elementId, spaceId} = req.body;
+    const {spaceElementId} = req.body;
 
     try {
-        await prisma.spaceElements.delete({where : {elementId, id : spaceId}});
+        await prisma.spaceElements.delete({where : {id : spaceElementId}});
         res.status(200).json({message : "Element deleted"})
     } catch (e) {
         console.log(e);
