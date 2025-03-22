@@ -1,21 +1,21 @@
 import {Router} from "express";
 import {generateUsername} from "unique-username-generator"
 
-export const authRouter = Router();
+const authRouter : Router = Router();
 
-import client from "@repo/db/client"
+import {prisma} from "@repo/db/client"
 
 authRouter.post("/signup", async (req, res) => {
     const {clerkId, name, imageUrl, email} = req.body;
 
     try {
-        const findUser = await client.user.findUnique({where: {clerkId}});
+        const findUser = await prisma.user.findUnique({where: {clerkId}});
         if (findUser) {
             res.status(200).json({userId: findUser.id, message : "User already exists"});
             return;
         }
-        const findAvatar = await client.avatar.findFirst();
-        const createUser = await client.user.create({
+        const findAvatar = await prisma.avatar.findFirst();
+        const createUser = await prisma.user.create({
             data: {
                 username: name + generateUsername(),
                 role: "User",
@@ -32,3 +32,5 @@ authRouter.post("/signup", async (req, res) => {
         res.status(500).json({message : "Internal Server Error"})
     }
 });
+
+export default authRouter

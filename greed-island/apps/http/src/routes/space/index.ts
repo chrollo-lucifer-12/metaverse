@@ -1,19 +1,19 @@
 import {Router} from "express";
-import client from "@repo/db/client"
-export const spaceRouter = Router();
+import {prisma} from "@repo/db/client"
+const spaceRouter : Router= Router();
 
 spaceRouter.post("/space", async (req, res) => {
     const {name, dimensions, mapId, thumbnail} = req.body
     const clerkId = req.header("clerkId");
 
     try {
-        const findUser = await client.user.findUnique({where : {clerkId}});
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
         if (!findUser) {
             res.status(400).json({message : "User doesn't exists"})
             return;
         }
         const [width, height] = dimensions.split("x").map(Number);
-        const createSpace = await client.space.create({data : {
+        const createSpace = await prisma.space.create({data : {
                 creatorId: findUser.id,
                 name,
                 mapId,
@@ -38,13 +38,13 @@ spaceRouter.delete("/:spaceId", async (req, res) => {
     }
 
     try {
-        const findUser = await client.user.findUnique({where : {clerkId}});
-        const findSpace = await client.space.findUnique({where : {id : spaceId}})
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
+        const findSpace = await prisma.space.findUnique({where : {id : spaceId}})
 
         if (!findUser || !findSpace || findSpace.creatorId!==findUser.id) {
             res.status(400).json({message : "Space or user not found"})
         }
-        await client.space.delete({where : {id : spaceId}});
+        await prisma.space.delete({where : {id : spaceId}});
         res.status(200).json({message : "Space deleted"})
     } catch (e) {
         console.log(e);
@@ -54,7 +54,7 @@ spaceRouter.delete("/:spaceId", async (req, res) => {
 
 spaceRouter.get("/all", async (req, res) => {
     try {
-        const spaces = await client.space.findMany({select : {id : true, name : true, height : true, width : true, thumbnail : true
+        const spaces = await prisma.space.findMany({select : {id : true, name : true, height : true, width : true, thumbnail : true
         }});
         res.status(200).json({spaces});
     } catch (e) {
@@ -66,7 +66,7 @@ spaceRouter.get("/all", async (req, res) => {
 spaceRouter.get("/:spaceId", async (req, res) => {
     const { spaceId } = req.params;
     try {
-        const space = await client.space.findUnique({where : {id : spaceId}, select : {height : true, width : true, spaceElements : true}});
+        const space = await prisma.space.findUnique({where : {id : spaceId}, select : {height : true, width : true, spaceElements : true}});
         res.status(200).json({space});
     } catch (e) {
         console.log(e);
@@ -80,7 +80,7 @@ spaceRouter.post("/element", async (req, res) => {
         res.status(400).json({message : "Missing data"})
     }
     try {
-        await client.spaceElements.create({data : {
+        await prisma.spaceElements.create({data : {
                 spaceId,
                 elementId,
                 x,
@@ -97,7 +97,7 @@ spaceRouter.delete("/element", async (req, res) => {
     const {elementId, spaceId} = req.body;
 
     try {
-        await client.spaceElements.delete({where : {elementId, id : spaceId}});
+        await prisma.spaceElements.delete({where : {elementId, id : spaceId}});
         res.status(200).json({message : "Element deleted"})
     } catch (e) {
         console.log(e);
@@ -105,3 +105,4 @@ spaceRouter.delete("/element", async (req, res) => {
     }
 })
 
+export default spaceRouter

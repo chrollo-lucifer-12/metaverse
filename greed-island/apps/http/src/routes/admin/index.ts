@@ -1,6 +1,6 @@
 import {Router} from "express";
-import client from "@repo/db/client"
-export const adminRouter = Router();
+import {prisma} from "@repo/db/client"
+const adminRouter : Router = Router();
 
 adminRouter.post("/element", async  (req, res) => {
     const {imageUrl, width, height, isStatic} = req.body
@@ -13,12 +13,12 @@ adminRouter.post("/element", async  (req, res) => {
 
     try {
 
-        const findUser = await client.user.findUnique({where : {clerkId}});
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
         if (!findUser || findUser.role!=="Admin") {
             res.status(400).json({message : "User not found or not an admin"})
         }
 
-        const element = await client.elements.create({
+        const element = await prisma.elements.create({
             data : {
                 static : isStatic,
                 width,
@@ -44,11 +44,11 @@ adminRouter.put("/element/:elementId" , async (req, res) => {
     }
 
     try {
-        const findUser = await client.user.findUnique({where : {clerkId}});
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
         if (!findUser || findUser.role!=="Admin") {
             res.status(400).json({message : "User not found or not an admin"})
         }
-        await client.elements.update({data : {imageUrl}, where : {id : elementId}})
+        await prisma.elements.update({data : {imageUrl}, where : {id : elementId}})
         res.status(200).json({message : "Element updated"});
         return;
     } catch (e) {
@@ -65,12 +65,12 @@ adminRouter.post("/avatar", async (req, res) => {
         return;
     }
     try {
-        const findUser = await client.user.findUnique({where : {clerkId}});
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
         if (!findUser || findUser.role!=="Admin") {
             res.status(400).json({message : "User not found or not an admin"})
             return;
         }
-        const avatar = await client.avatar.create({
+        const avatar = await prisma.avatar.create({
             data : {
                 imageUrl,
                 name
@@ -94,13 +94,13 @@ adminRouter.post("/map", async (req, res) => {
     }
 
     try {
-        const findUser = await client.user.findUnique({where : {clerkId}});
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
         if (!findUser || findUser.role!=="Admin") {
             res.status(400).json({message : "User not found or not an admin"})
             return;
         }
         const [width, height] = dimensions.split("x").map(Number);
-        const map = await client.map.create({
+        const map = await prisma.map.create({
             data : {
                 width,
                 height,
@@ -108,8 +108,8 @@ adminRouter.post("/map", async (req, res) => {
                 name,
             }
         })
-        defaultElements.map(async (e) => {
-            await client.mapElements.create({
+        defaultElements.map(async (e : any) => {
+            await prisma.mapElements.create({
                 data : {
                     mapId : map.id,
                     x : e.x,
@@ -125,3 +125,5 @@ adminRouter.post("/map", async (req, res) => {
         res.status(500).json({message : "Internal Server Error"})
     }
 })
+
+export default adminRouter

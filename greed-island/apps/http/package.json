@@ -2,22 +2,23 @@
   "name": "http",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsc -b && node ./dist/index.js"
+    "dev": "esr ./src/index.ts && node ./dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^5.0.1",
-    "@types/node": "^22.13.10",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "@types/node": "^22.13.10"
   },
   "dependencies": {
     "@repo/db": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "esbuild": "^0.25.1",
+    "esbuild-runner": "^2.2.2",
     "express": "^4.21.2",
     "unique-username-generator": "^1.4.0"
   }

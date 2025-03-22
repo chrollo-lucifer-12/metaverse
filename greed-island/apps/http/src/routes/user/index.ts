@@ -1,7 +1,7 @@
 import {Router} from "express";
-import client from "@repo/db/client"
+import {prisma} from "@repo/db/client"
 
-export const userRouter = Router();
+const userRouter : Router = Router();
 
 userRouter.post("/metadata", async  (req, res) => {
     const {avatarId} = req.body
@@ -13,7 +13,7 @@ userRouter.post("/metadata", async  (req, res) => {
     }
 
     try {
-        await client.user.update({where : {clerkId}, data : {avatarId}})
+        await prisma.user.update({where : {clerkId}, data : {avatarId}})
         res.status(200).json({message : "User updated successfully."});
         return;
     } catch (e) {
@@ -27,7 +27,7 @@ userRouter.get("/metadata/bulk", async (req, res) => {
 
     try {
         let parseIds = JSON.parse(ids as string);
-        const users = await client.user.findMany({
+        const users = await prisma.user.findMany({
             where : {id : {in : parseIds}},
             select : {id : true, imageUrl : true}
         })
@@ -37,3 +37,5 @@ userRouter.get("/metadata/bulk", async (req, res) => {
         res.status(500).json({message : "Internal Server Error"})
     }
 })
+
+export default userRouter
