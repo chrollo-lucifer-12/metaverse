@@ -39,17 +39,18 @@ model Space {
   creator       User            @relation(fields: [creatorId], references: [id])
   creatorId     String
   spaceElements spaceElements[]
+  mapId         String
+  map           Map             @relation(fields: [mapId], references: [id])
 }
 
 model spaceElements {
-  id         String   @id @unique @default(uuid())
-  elementId  String
-  spaceId    String
-  x          Int
-  y          Int
-  Space      Space    @relation(fields: [spaceId], references: [id])
-  Elements   Elements @relation(fields: [elementsId], references: [id])
-  elementsId String
+  id        String   @id @unique @default(uuid())
+  elementId String
+  spaceId   String
+  x         Int
+  y         Int
+  Space     Space    @relation(fields: [spaceId], references: [id])
+  Elements  Elements @relation(fields: [elementId], references: [id])
 }
 
 model Elements {
@@ -57,6 +58,7 @@ model Elements {
   width       Int
   height      Int
   imageUrl    String
+  static      Boolean
   spaces      spaceElements[]
   mapElements mapElements[]
 }
@@ -66,7 +68,9 @@ model Map {
   width       Int
   height      Int
   name        String
+  thumbnail   String
   mapElements mapElements[]
+  Space       Space[]
 }
 
 model mapElements {
