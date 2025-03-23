@@ -37,6 +37,7 @@ export class RoomManager {
         if (!this.rooms.has(roomId)) {
             return;
         }
+        console.log(message);
         this.rooms.get(roomId)?.forEach((u) => {
             if (u.id !== user.id) {
                 u.send(JSON.stringify(message))

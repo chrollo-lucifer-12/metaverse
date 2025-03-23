@@ -23,6 +23,7 @@ export class User {
     constructor(ws: WebSocket, ) {
         this.ws = ws;
         this.id = generateRandomString(12);
+        this.initHandlers();
     }
 
     initHandlers () {
@@ -30,62 +31,71 @@ export class User {
             const parsedData = JSON.parse(data.toString());
             switch (parsedData.type) {
                 case "join":
-                    const spaceId = parsedData.payload.spaceId,clerkId = parsedData.payload.clerkId;
-                    const user = await prisma.user.findUnique({where : {clerkId}});
+                    const spaceId = parsedData.payload.spaceId, clerkId = parsedData.payload.clerkId;
+                    const user = await prisma.user.findUnique({where: {clerkId}});
+                    // console.log(user);
                     if (!user) {
                         this.ws.close();
                         return;
                     }
                     this.userId = user.id
-                    const space = await prisma.space.findUnique({where : {id : spaceId}})
+                    const space = await prisma.space.findUnique({where: {id: spaceId}})
                     if (!space) {
                         this.ws.close();
                         return;
                     }
+                    //  console.log(space);
                     this.spaceId = spaceId
-                    RoomManager.getInstance().addUser(spaceId,this)
-                    this.x =  Math.floor(Math.random() * space.width), this.y = Math.floor(Math.random() * space.height)
+                    RoomManager.getInstance().addUser(spaceId, this)
+                    this.x = Math.max(0, Math.min(space.width - 1, Math.floor(Math.random() * space.width)));
+                    this.y = Math.max(0, Math.min(space.height - 1, Math.floor(Math.random() * space.height)));
+                    console.log(this.x);
+                    console.log(this.y);
                     this.send({
-                        type : "space-joined",
-                        payload : {
+                        type: "space-joined",
+                        payload: {
                             // todo
                             spawn: {
                                 x: this.x,
                                 y: this.y
                             },
-                            users : RoomManager.getInstance().rooms.get(spaceId)?.map((u) => ({ id : u.id})) ?? []
+                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) => ({id: u.id})) ?? []
                         }
                     })
                     RoomManager.getInstance().broadcast({
-                        type : "user-joined",
-                        payload : {
+                        type: "user-joined",
+                        payload: {
                             userId: this.userId,
-                                x : this.x,
-                                y : this.y
+                            x: this.x,
+                            y: this.y
                         }
-                    },this, this.spaceId!)
+                    }, this, this.spaceId!)
                     break
                 case "move":
                     const moveX = parsedData.payload.x, moveY = parsedData.payload.y
-                    if ((this.x! - moveX) * (this.x! - moveX) + (this.y! - moveY) * (this.y! - moveY) == 1) {
+                    let dx = this.x! - moveX;
+                    let dy = this.y! - moveY;
+                    let d = dx * dx + dy * dy;
+                    if (d === 1 || d === 2) {
                         this.x = moveX, this.y = moveY
                         RoomManager.getInstance().broadcast({
-                            type : "move",
-                            payload : {
-                                x : this.x,
-                                y : this.y
+                            type: "move",
+                            payload: {
+                                userId: this.userId,
+                                x: this.x,
+                                y: this.y
                             }
                         }, this, this.spaceId!)
+                        return;
                     }
-                    else {
-                        this.send({
-                            type : "move-rejected",
-                            payload : {
-                                x : this.x,
-                                y : this.y
-                            }
-                        })
-                    }
+
+                    this.send({
+                        type: "move-rejected",
+                        payload: {
+                            x: this.x,
+                            y: this.y
+                        }
+                    })
                     break
                 default:
                     break
