@@ -10,13 +10,18 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.8",
+    "@pixi/react": "^8.0.0",
     "@radix-ui/react-slot": "^1.1.2",
+    "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.483.0",
     "next": "15.2.3",
+    "phaser": "^3.88.2",
+    "pixi.js": "^8.9.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-sprite-animator": "^2.0.2",
     "tailwind-merge": "^3.0.2",
     "tw-animate-css": "^1.2.4"
   },
