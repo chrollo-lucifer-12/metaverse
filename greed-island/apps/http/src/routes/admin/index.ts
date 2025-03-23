@@ -24,6 +24,7 @@ adminRouter.post("/element", async  (req, res) => {
                 width,
                 height,
                 imageUrl,
+
             }
         })
         res.status(200).json({id : element.id});
@@ -58,7 +59,7 @@ adminRouter.put("/element/:elementId" , async (req, res) => {
 })
 
 adminRouter.post("/avatar", async (req, res) => {
-    const {imageUrl, name} = req.body
+    const {imageUrl, name, imageUrl2, idleJson, runningJson} = req.body
     const clerkId = req.header("clerkId");
     if (!imageUrl || !clerkId || !name) {
         res.status(400).json({message : "Missing data"})
@@ -73,7 +74,10 @@ adminRouter.post("/avatar", async (req, res) => {
         const avatar = await prisma.avatar.create({
             data : {
                 imageUrl,
-                name
+                name,
+                imageUrl2,
+                idleJson : JSON.parse(idleJson),
+                runningJson : JSON.parse(runningJson)
             }
         })
         res.status(200).json({avatarId : avatar.id})

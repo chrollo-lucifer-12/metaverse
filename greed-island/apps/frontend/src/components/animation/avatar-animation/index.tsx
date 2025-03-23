@@ -1,34 +1,26 @@
 import React, {useEffect, useState} from "react";
+import {Button} from "@/components/ui/button";
 
 
 interface EntityAnimationProps {
     idleSpritesheet : string,
-    idleJson : string,
+    idleJson : JSON,
     runningSpritesheet : string,
-    runningJson : string
+    runningJson : JSON
 }
 
 const EntityAnimation = ({ idleSpritesheet, idleJson, runningSpritesheet, runningJson } : EntityAnimationProps) => {
+
     const [isRunning, setIsRunning] = useState(false);
     const [currentFrame, setCurrentFrame] = useState(0);
-    const [frameData, setFrameData] = useState(null);
+    const [frameData, setFrameData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
-    // Load the appropriate JSON data based on current animation state
     useEffect(() => {
         setLoading(true);
-
-        fetch(isRunning ? runningJson : idleJson)
-            .then(response => response.json())
-            .then(data => {
-                setFrameData(data);
-                setCurrentFrame(0);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error loading sprite data:', error);
-                setLoading(false);
-            });
+        setFrameData(isRunning ? runningJson : idleJson);
+        setCurrentFrame(0);
+        setLoading(false);
     }, [isRunning, idleJson, runningJson]);
 
     // Handle animation frames
@@ -55,7 +47,7 @@ const EntityAnimation = ({ idleSpritesheet, idleJson, runningSpritesheet, runnin
     };
 
     if (loading || !frameData) {
-        return <div className="flex items-center justify-center h-32">Loading animation...</div>;
+        return ;
     }
 
     // Get the current frame data
@@ -67,29 +59,31 @@ const EntityAnimation = ({ idleSpritesheet, idleJson, runningSpritesheet, runnin
         width: `${frame.sourceSize.w }px`,
         height: `${frame.sourceSize.h }px`,
         backgroundImage: `url(${isRunning ? runningSpritesheet : idleSpritesheet})`,
-        backgroundPosition: `-${frame.frame.x }px -${frame.frame.y }px`,
-        backgroundSize: `${frameData.meta.size.w }px ${frameData.meta.size.h }px`,
+        backgroundPosition: `-${frame.frame.x}px -${frame.frame.y}px`,
+        backgroundSize: `${frameData.meta.size.w}px ${frameData.meta.size.h}px`,
         imageRendering: 'pixelated'
     };
 
     return (
-        <div className="flex flex-col items-center">
-            <div >
+        <div className="flex flex-col items-center justify-between h-[100%]">
+            <div>
                 <div style={style}></div>
             </div>
+            <div className={"flex flex-col items-center"}>
 
-            <button
-                onClick={toggleAnimation}
-                className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-                {isRunning ? "Show Idle" : "Show Running"}
-            </button>
+                <Button
+                    onClick={toggleAnimation}
+                    className="transition duration-150"
+                >
+                    {isRunning ? "Show Idle" : "Show Running"}
+                </Button>
 
-            <div className="mt-2 text-gray-600">
-                Current Animation: <span className="font-bold">{isRunning ? "Running" : "Idle"}</span>
+                <div className="mt-2 text-gray-600">
+                    Current Animation: <span className="font-bold">{isRunning ? "Running" : "Idle"}</span>
+                </div>
             </div>
         </div>
     );
-};
+}
 
 export default EntityAnimation
