@@ -86,7 +86,7 @@ export const CreateElement = async (name : string, width : string, height : stri
             height : parseInt(height),
             imageUrl : idleImageUrl,
             jsonData,
-            isStatic
+            isStatic : isStatic ? true : false
         }, {
             headers : {
                 clerkId : user.id

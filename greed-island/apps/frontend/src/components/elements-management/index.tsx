@@ -17,7 +17,7 @@ const ElementsManagement = () => {
             </div>
             <CreateElement/>
         </div>
-        <div className={"ml-6 mr-6 mt-10 flex gap-x-8"}>
+        <div className={"ml-6 mr-6 mt-10 mb-6 flex gap-x-8"}>
             {
                 !elements.length ? (<p className={"text-center text-[#7f8086] text-md"}>No elements to show</p>) : (
                     elements.map((element) => (
