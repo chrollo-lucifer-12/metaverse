@@ -58,7 +58,9 @@ model Elements {
   width       Int
   height      Int
   imageUrl    String
+  jsonData    Json
   static      Boolean
+  name        String
   spaces      spaceElements[]
   mapElements mapElements[]
 }

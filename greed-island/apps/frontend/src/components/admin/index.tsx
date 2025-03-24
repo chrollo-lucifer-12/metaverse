@@ -1,12 +1,11 @@
 "use client"
 import PropsManagement from "@/components/props-management";
+import ElementsManagement from "@/components/elements-management";
 
 const Admin = () => {
-
-   // const{data : elementsData} = useQueryData(["elements"], () => fetchElements())
-
     return <div>
         <PropsManagement/>
+        <ElementsManagement/>
     </div>
 }
 

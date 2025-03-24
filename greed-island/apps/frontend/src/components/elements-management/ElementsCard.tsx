@@ -1,15 +1,14 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import AvatarAnimation from "@/components/animation/avatar-animation";
+import PropAnimation from "@/components/animation/prop-animation";
 
 interface PropCardProps {
     imageUrl : string
     name : string
-    imageUrl2 : string
-    idleJson : JSON
-    runningJson : JSON
+    jsonData : JSON
 }
 
-const PropCard = ({imageUrl, name, imageUrl2, idleJson, runningJson} : PropCardProps) => {
+const PropCard = ({imageUrl, name, jsonData} : PropCardProps) => {
 
     return <Card className={"border-1 border-[#232325] bg-transparent text-white w-72 h-96 "}>
         <CardHeader>
@@ -18,8 +17,7 @@ const PropCard = ({imageUrl, name, imageUrl2, idleJson, runningJson} : PropCardP
             </CardTitle>
         </CardHeader>
         <CardContent className={"flex justify-center items-center h-full"}>
-            {/*<Image src={imageUrl} alt={"prop image"} height={300} width={400} />*/}
-            <AvatarAnimation idleSpritesheet={imageUrl} idleJson={idleJson} runningSpritesheet={imageUrl2} runningJson={runningJson}/>
+            <PropAnimation imageUrl={imageUrl} jsonData={jsonData} />
         </CardContent>
     </Card>
 }

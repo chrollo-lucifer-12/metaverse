@@ -3,7 +3,7 @@ import {prisma} from "@repo/db/client"
 const adminRouter : Router = Router();
 
 adminRouter.post("/element", async  (req, res) => {
-    const {imageUrl, width, height, isStatic} = req.body
+    const {imageUrl, width, height, isStatic, jsonData, name} = req.body
     const clerkId = req.header("clerkId");
 
     if (!clerkId || !imageUrl || !width || !height || !isStatic) {
@@ -24,7 +24,8 @@ adminRouter.post("/element", async  (req, res) => {
                 width,
                 height,
                 imageUrl,
-
+                jsonData : JSON.parse(jsonData),
+                name
             }
         })
         res.status(200).json({id : element.id});

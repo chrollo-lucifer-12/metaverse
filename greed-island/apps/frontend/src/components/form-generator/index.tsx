@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ErrorMessage } from "@hookform/error-message";
 
 interface FormGeneratorProps {
-    type?: "text" | "email" | "password" | "number" | "file";
+    type?: "text" | "email" | "password" | "number" | "file" | "checkbox";
     inputType: "select" | "input" | "textarea";
     options?: { value: string; label: string; id: string }[];
     label?: string;
@@ -29,7 +29,7 @@ const FormGenerator = ({
     switch (inputType) {
         case "input":
             return (
-                <div className="mt-2 text-white">
+                <div className="mt-2 text-white flex flex-col">
                     <Label htmlFor={name} className="block">
                         {label}
                     </Label>

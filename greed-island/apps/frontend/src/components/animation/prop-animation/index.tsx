@@ -2,32 +2,52 @@
 
 import React, { useState, useEffect } from "react";
 
-const PropAnimation = () => {
-    const [spriteData, setSpriteData] = useState<any | null>(null);
-    const [style, setStyle] = useState<React.CSSProperties>({});
+const PropAnimation = ({imageUrl, jsonData} : {imageUrl : string, jsonData : JSON}) => {
+    const [currentFrame, setCurrentFrame] = useState(0);
+    const [frameData, setFrameData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/assets/Alchemy_Table_03.json")
-            .then((response) => response.json())
-            .then((data) => {
-                setSpriteData(data);
+        setLoading(true);
+        setFrameData(jsonData);
+        setCurrentFrame(0);
+        setLoading(false);
+    }, [jsonData]);
 
-                const frameNames = Object.keys(data.frames);
-                const frame = data.frames[frameNames[0]]; // Get the first frame
+    useEffect(() => {
+        if (!frameData || loading) return;
 
-                setStyle({
-                    width: `${frame.sourceSize.w * 3}px`,
-                    height: `${frame.sourceSize.h * 3}px`,
-                    backgroundImage: `url("/assets/Alchemy_Table_03.png")`,
-                    backgroundPosition: `-${frame.frame.x * 3}px -${frame.frame.y * 3}px`,
-                    backgroundSize: `${data.meta.size.w * 3}px ${data.meta.size.h * 3}px`,
-                    imageRendering: "pixelated",
-                });
-            })
-            .catch((error) => {
-                console.error("Error loading sprite data:", error);
+        // Get all frame names and durations
+        const frameNames = Object.keys(frameData.frames);
+        const frameDuration = frameData.frames[frameNames[currentFrame]]?.duration || 100;
+
+        // Set up animation timer
+        const timer = setTimeout(() => {
+            setCurrentFrame(prevFrame => {
+                const nextFrame = prevFrame + 1;
+                return nextFrame >= frameNames.length ? 0 : nextFrame;
             });
-    }, []);
+        }, frameDuration);
+
+        return () => clearTimeout(timer);
+    }, [frameData, currentFrame, loading]);
+
+    if (loading || !frameData) {
+        return ;
+    }
+
+    const frameNames = Object.keys(frameData.frames);
+    const frame = frameData.frames[frameNames[currentFrame]];
+
+    // Set the style for displaying the current frame
+    const style = {
+        width: `${frame.sourceSize.w }px`,
+        height: `${frame.sourceSize.h }px`,
+        backgroundImage: `url(${imageUrl})`,
+        backgroundPosition: `-${frame.frame.x}px -${frame.frame.y}px`,
+        backgroundSize: `${frameData.meta.size.w}px ${frameData.meta.size.h}px`,
+        imageRendering: 'pixelated'
+    };
 
     return (
         <div className="flex flex-col items-center">

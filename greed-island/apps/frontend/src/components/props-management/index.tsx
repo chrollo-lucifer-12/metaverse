@@ -1,7 +1,5 @@
 "use client"
 
-import {Button} from "@/components/ui/button";
-import {PlusIcon} from "lucide-react";
 import {useQueryData} from "@/hooks/useQueryData";
 import {fetchAvatars} from "@/actions/elements";
 import {AvatarsProps} from "@/types";

@@ -20,3 +20,12 @@ export const propSchema =z.object({
     runningImage : imageSchema,
     runningJson : z.string()
 })
+
+export const elementSchema = z.object({
+    name : z.string().min(1, {message : "Name cannot be empty"}),
+    image : imageSchema,
+    width : z.string(),
+    height : z.string(),
+    isStatic : z.boolean(),
+    jsonData : z.string()
+})
