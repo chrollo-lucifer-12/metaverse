@@ -1,3 +1,4 @@
+
 "use client"
 import {useQueryData} from "@/hooks/useQueryData";
 import {fetchElements} from "@/actions/elements";
@@ -10,24 +11,31 @@ const ElementsManagement = () => {
 
     const elements = data as ElementsProps
 
-    return <div>
-        <div className={"text-white mt-10 ml-6 mr-6 flex items-center justify-between"}>
-            <div>
-                <p className="text-5xl font-bold">Props</p>
-                <p className={"text-ms mt-3 text-[#7f8086]"}>Add, edit, and manage props for your metaverse world.</p>
+    return (
+        <div className="container mx-auto px-4">
+            <div className="text-white mt-10 flex items-center justify-between">
+                <div>
+                    <p className="text-5xl font-bold">Props</p>
+                    <p className="text-sm mt-3 text-[#7f8086]">Add, edit, and manage props for your metaverse world.</p>
+                </div>
+                <CreateElement/>
             </div>
-            <CreateElement/>
-        </div>
-        <div className={"ml-6 mr-6 mt-10 mb-6 flex gap-x-8"}>
-            {
-                !elements.length ? (<p className={"text-center text-[#7f8086] text-md"}>No elements to show</p>) : (
+            <div className="mt-10 mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                {!elements?.length ? (
+                    <p className="col-span-full text-center text-[#7f8086] text-md">No elements to show</p>
+                ) : (
                     elements.map((element) => (
-                        <ElementsCard key={element.id} imageUrl={element.imageUrl} name={element.name} jsonData={element.jsonData}/>
+                        <ElementsCard 
+                            key={element.id} 
+                            imageUrl={element.imageUrl} 
+                            name={element.name} 
+                            jsonData={element.jsonData}
+                        />
                     ))
-                )
-            }
+                )}
+            </div>
         </div>
-    </div>
+    )
 }
 
 export default ElementsManagement
