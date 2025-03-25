@@ -11,14 +11,16 @@ interface PropCardProps {
     imageUrl : string
     name : string
     jsonData : JSON
+    onClick?: () => void;
 }
 
-const PropCard = ({imageUrl, name, jsonData} : PropCardProps) => {
+const PropCard = ({imageUrl, name, jsonData, onClick} : PropCardProps) => {
 
     return (
         <HoverCard>
             <HoverCardTrigger>
                 <Card
+                    onClick={onClick}
                     className={"border-1 border-[#232325] bg-transparent text-white w-20 h-20 rounded-full hover:ring-1 transition duration-200"}>
                     <CardContent className={"flex justify-center items-center h-full"}>
                         <PropAnimation imageUrl={imageUrl} jsonData={jsonData}/>

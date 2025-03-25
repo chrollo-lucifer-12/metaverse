@@ -1,5 +1,4 @@
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
-import axios from "axios";
 import Admin from "@/components/admin";
 import {fetchAvatars, fetchElements} from "@/actions/elements";
 

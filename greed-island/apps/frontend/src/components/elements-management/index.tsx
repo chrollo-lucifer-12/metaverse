@@ -1,3 +1,4 @@
+"use client"
 import {useQueryData} from "@/hooks/useQueryData";
 import {fetchElements} from "@/actions/elements";
 import {ElementsProps} from "@/types";

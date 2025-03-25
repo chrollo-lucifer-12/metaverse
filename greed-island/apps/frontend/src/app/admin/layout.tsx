@@ -9,7 +9,9 @@ const Layout = ({children} : LayoutProps) => {
     return (
         <div>
             <AdminNavbar/>
+
             <main>
+
                 {children}
             </main>
         </div>

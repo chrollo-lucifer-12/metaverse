@@ -16,12 +16,8 @@ const PropAnimation = ({imageUrl, jsonData} : {imageUrl : string, jsonData : JSO
 
     useEffect(() => {
         if (!frameData || loading) return;
-
-        // Get all frame names and durations
         const frameNames = Object.keys(frameData.frames);
         const frameDuration = frameData.frames[frameNames[currentFrame]]?.duration || 100;
-
-        // Set up animation timer
         const timer = setTimeout(() => {
             setCurrentFrame(prevFrame => {
                 const nextFrame = prevFrame + 1;
@@ -39,7 +35,6 @@ const PropAnimation = ({imageUrl, jsonData} : {imageUrl : string, jsonData : JSO
     const frameNames = Object.keys(frameData.frames);
     const frame = frameData.frames[frameNames[currentFrame]];
 
-    // Set the style for displaying the current frame
     const style = {
         width: `${frame.sourceSize.w }px`,
         height: `${frame.sourceSize.h }px`,
@@ -55,6 +50,8 @@ const PropAnimation = ({imageUrl, jsonData} : {imageUrl : string, jsonData : JSO
                 <div style={style}></div>
             </div>
         </div>
+
+
     );
 };
 
