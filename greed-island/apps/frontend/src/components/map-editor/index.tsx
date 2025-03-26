@@ -1,78 +1,174 @@
-"use client";
-import { useQueryData } from "@/hooks/useQueryData";
-import { fetchElements } from "@/actions/elements";
-import { ElementsProps } from "@/types";
-import { useEffect, useRef, useState } from "react";
-import PropAnimation from "@/components/animation/prop-animation";
+"use client"
+
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Trash2, Move, Copy } from 'lucide-react';
+import PropAnimation from "@/components/animation/prop-animation";
+import { fetchElements } from "@/actions/elements";
+import { useQueryData } from "@/hooks/useQueryData";
+import { ElementsProps } from "@/types";
 
 const GRID_SIZE = 16;
 const GRID_COLOR = "rgba(128, 128, 128, 0.2)";
 
+type PlacedElement = {
+    id: string;
+    element: any;
+    x: number;
+    y: number;
+};
+
 const MapEditor = () => {
-    const [selectedElement, setSelectedElement] = useState<any>(null);
-    const [placedElements, setPlacedElements] = useState<any[]>([]);
-    const [draggingElement, setDraggingElement] = useState<any>(null);
+    const [selectedPalette, setSelectedPalette] = useState<any>(null);
+    const [placedElements, setPlacedElements] = useState<PlacedElement[]>([]);
+    const [mode, setMode] = useState<'place' | 'move' | 'delete' | 'copy'>('place');
     const [isDragging, setIsDragging] = useState(false);
+    const [currentDragElement, setCurrentDragElement] = useState<PlacedElement | null>(null);
+    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
     const editorRef = useRef<HTMLDivElement>(null);
 
-    const {data, isFetching} = useQueryData(["elements"], () => fetchElements());
+    const { data, isFetching } = useQueryData(["elements"], () => fetchElements());
     const elements = data as ElementsProps;
 
-    useEffect(() => {
-        if (!isFetching && elements) {
-            const woodenTile = elements.find(el => el.name === "wooden-tile");
-            if (woodenTile) {
-                const tilesX = Math.ceil(1020 / GRID_SIZE);
-                const tilesY = Math.ceil(500 / GRID_SIZE);
-                const newPlacedElements = [];
+    // Snap to grid function
+    const snapToGrid = (value: number) => {
+        return Math.round(value / GRID_SIZE) * GRID_SIZE;
+    };
 
-                for (let x = 0; x < tilesX; x++) {
-                    for (let y = 0; y < tilesY; y++) {
-                        newPlacedElements.push({
-                            element: woodenTile,
-                            x: x * GRID_SIZE,
-                            y: y * GRID_SIZE,
-                        });
-                    }
-                }
+    // Handle element placement
+    const handleElementPlacement = (e: React.MouseEvent) => {
+        if (!selectedPalette || mode !== 'place' || !editorRef.current) return;
 
-                setPlacedElements(newPlacedElements);
-            }
-        }
-    },[isFetching])
+        const editorRect = editorRef.current.getBoundingClientRect();
+        const gridX = snapToGrid(e.clientX - editorRect.left);
+        const gridY = snapToGrid(e.clientY - editorRect.top);
 
-    useEffect(() => {
-        const handleMouseDown = (e: MouseEvent) => {
-            if (!selectedElement || !editorRef.current) return;
-            const editorRect = editorRef.current.getBoundingClientRect();
+        // Check if the spot is already occupied
+        const isOccupied = placedElements.some(placed =>
+            placed.x === gridX && placed.y === gridY
+        );
 
-            const gridX = Math.floor((e.clientX - editorRect.left) / GRID_SIZE) * GRID_SIZE;
-            const gridY = Math.floor((e.clientY - editorRect.top) / GRID_SIZE) * GRID_SIZE;
-
-            setPlacedElements((prev) => [
+        if (!isOccupied) {
+            setPlacedElements(prev => [
                 ...prev,
                 {
-                    element: selectedElement,
+                    id: `element-${Date.now()}`,
+                    element: selectedPalette,
                     x: gridX,
-                    y: gridY,
-                },
+                    y: gridY
+                }
             ]);
-        };
-
-        const editor = editorRef.current;
-        if (editor) {
-            editor.addEventListener("mousedown", handleMouseDown);
         }
+    };
 
-        return () => {
-            if (editor) {
-                editor.removeEventListener("mousedown", handleMouseDown);
+    // Handle element deletion
+    const handleElementDeletion = (e: React.MouseEvent) => {
+        if (mode !== 'delete' || !editorRef.current) return;
+
+        const editorRect = editorRef.current.getBoundingClientRect();
+        const gridX = snapToGrid(e.clientX - editorRect.left);
+        const gridY = snapToGrid(e.clientY - editorRect.top);
+
+        setPlacedElements(prev =>
+            prev.filter(placed =>
+                !(placed.x === gridX && placed.y === gridY)
+            )
+        );
+    };
+
+    // Handle element copying
+    const handleElementCopy = (e: React.MouseEvent) => {
+        if (mode !== 'copy' || !editorRef.current) return;
+
+        const editorRect = editorRef.current.getBoundingClientRect();
+        const gridX = snapToGrid(e.clientX - editorRect.left);
+        const gridY = snapToGrid(e.clientY - editorRect.top);
+
+        const elementToCopy = placedElements.find(placed =>
+            placed.x === gridX && placed.y === gridY
+        );
+
+        if (elementToCopy) {
+            // Find a nearby empty spot
+            const newX = gridX + GRID_SIZE;
+            const newY = gridY + GRID_SIZE;
+
+            const isSpotAvailable = !placedElements.some(placed =>
+                placed.x === newX && placed.y === newY
+            );
+
+            if (isSpotAvailable) {
+                setPlacedElements(prev => [
+                    ...prev,
+                    {
+                        id: `element-${Date.now()}`,
+                        element: elementToCopy.element,
+                        x: newX,
+                        y: newY
+                    }
+                ]);
             }
-        };
-    }, [selectedElement]);
+        }
+    };
 
+    // Handle drag start
+    const handleDragStart = (e: React.MouseEvent, element: PlacedElement) => {
+        if (mode !== 'move') return;
+
+        e.preventDefault(); // Prevent default to stop text selection
+
+        const editorRect = editorRef.current?.getBoundingClientRect();
+        if (!editorRect) return;
+
+        const offsetX = e.clientX - (editorRect.left + element.x);
+        const offsetY = e.clientY - (editorRect.top + element.y);
+
+        console.log('Drag start', { element, offsetX, offsetY });
+
+        setIsDragging(true);
+        setCurrentDragElement(element);
+        setDragOffset({ x: offsetX, y: offsetY });
+    };
+
+    // Handle drag move
+    const handleDragMove = (e: React.MouseEvent) => {
+        if (!isDragging || !currentDragElement || mode !== 'move' || !editorRef.current) return;
+
+        e.preventDefault(); // Prevent default to stop text selection
+
+        const editorRect = editorRef.current.getBoundingClientRect();
+
+        // Calculate the new position with grid snapping, accounting for the drag offset
+        const newX = snapToGrid(e.clientX - editorRect.left - dragOffset.x);
+        const newY = snapToGrid(e.clientY - editorRect.top - dragOffset.y);
+
+        // Check if the new spot is occupied by another element
+        const isOccupied = placedElements.some(placed =>
+            placed !== currentDragElement &&
+            placed.x === newX && placed.y === newY
+        );
+
+        if (!isOccupied) {
+            setPlacedElements(prev =>
+                prev.map(item =>
+                    item.id === currentDragElement.id
+                        ? { ...item, x: newX, y: newY }
+                        : item
+                )
+            );
+        }
+    };
+
+
+    // Handle drag end
+    const handleDragEnd = (e: React.MouseEvent) => {
+        console.log('Drag end');
+        setIsDragging(false);
+        setCurrentDragElement(null);
+    };
+
+    // Grid background rendering
     const renderGridBackground = () => {
         const gridLines = [];
         const width = 1020;
@@ -125,51 +221,62 @@ const MapEditor = () => {
 
     return (
         <div className="h-[650px] w-full text-white m-2 border border-[#1c1b1e] rounded-md flex flex-col">
-            <div className="border-b border-[#1c1b1e] p-3">Map Editor</div>
-            <div className="flex flex-1 gap-6 p-3">
+            <div className="border-b border-[#1c1b1e] p-3 flex justify-between items-center">
+                <span>Map Editor</span>
+                <div className="flex gap-2">
+                    <Button
+                        variant={mode === 'place' ? 'default' : 'outline'}
+                        onClick={() => setMode('place')}
+                    >
+                        Place
+                    </Button>
+                    <Button
+                        variant={mode === 'move' ? 'default' : 'outline'}
+                        onClick={() => setMode('move')}
+                    >
+                        <Move className="mr-2 h-4 w-4" /> Move
+                    </Button>
+                    <Button
+                        variant={mode === 'delete' ? 'default' : 'outline'}
+                        onClick={() => setMode('delete')}
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    </Button>
+                    <Button
+                        variant={mode === 'copy' ? 'default' : 'outline'}
+                        onClick={() => setMode('copy')}
+                    >
+                        <Copy className="mr-2 h-4 w-4" /> Copy
+                    </Button>
+                </div>
+            </div>
+            <div
+                className="flex flex-1 gap-6 p-3"
+
+            >
                 <div
                     ref={editorRef}
                     className="relative flex-1 border border-[#1c1b1e] rounded-md overflow-hidden"
+                    onClick={mode === 'place' ? handleElementPlacement :
+                        mode === 'delete' ? handleElementDeletion :
+                            mode === 'copy' ? handleElementCopy : undefined}
+                    onMouseMove={handleDragMove}
+                    onMouseUp={handleDragEnd}
+                    onMouseLeave={handleDragEnd}
                 >
                     {renderGridBackground()}
-                    {placedElements.map((placed, index) => (
+                    {placedElements.map((placed) => (
                         <div
-                            key={index}
-                            className="absolute"
+                            key={placed.id}
                             style={{
+                                position: 'absolute',
                                 left: `${placed.x}px`,
                                 top: `${placed.y}px`,
-                                zIndex: 10
+                                border: mode === 'move' ? '2px solid blue' : 'none',
+                                cursor: mode === 'move' ? 'move' : 'default'
                             }}
-                            onMouseDown={(e) => {
-                                if (selectedElement || !editorRef.current) return;
-                                setIsDragging(true);
-                                setDraggingElement(placed);
-                                if (draggingElement.element.id === placed.element.id) {
-                                    const editorRect = editorRef.current.getBoundingClientRect();
-                                    const gridX = Math.floor((e.clientX - editorRect.left) / GRID_SIZE) * GRID_SIZE;
-                                    const gridY = Math.floor((e.clientY - editorRect.top) / GRID_SIZE) * GRID_SIZE;
-                                    setPlacedElements(prevState => prevState.map(item => item.element.id === draggingElement.element.id ? {item, x : gridX, y : gridY} : item))
-                                }
-                            }}
-                            onMouseMove={(e) => {
-                                if (isDragging && editorRef.current) {
-                                    const editorRect = editorRef.current.getBoundingClientRect();
-                                    const gridX = Math.floor((e.clientX - editorRect.left) / GRID_SIZE) * GRID_SIZE;
-                                    const gridY = Math.floor((e.clientY - editorRect.top) / GRID_SIZE) * GRID_SIZE;
-                                    setPlacedElements(prevState => prevState.map(item => item.element.id === draggingElement.element.id ? {item, x : gridX, y : gridY} : item))
-                                }
-                            }}
-                            onMouseUp={(e) => {
-                                if (isDragging && editorRef.current) {
-                                    const editorRect = editorRef.current.getBoundingClientRect();
-                                    const gridX = Math.floor((e.clientX - editorRect.left) / GRID_SIZE) * GRID_SIZE;
-                                    const gridY = Math.floor((e.clientY - editorRect.top) / GRID_SIZE) * GRID_SIZE;
-                                    setPlacedElements(prevState => prevState.map(item => item.element.id === draggingElement.element.id ? {item, x : gridX, y : gridY} : item))
-                                    setIsDragging(false);
-                                    setDraggingElement(null);
-                                }
-                            }}
+                            onMouseDown={(e) => handleDragStart(e, placed)}
+
                         >
                             <PropAnimation
                                 imageUrl={placed.element.imageUrl}
@@ -180,28 +287,31 @@ const MapEditor = () => {
                 </div>
                 <div className="w-1/5 border border-[#1c1b1e] rounded-md p-2 flex flex-col">
                     <p className="font-bold text-center">Elements</p>
-                    <Button onClick={() => {
-                        setSelectedElement(null);
-                    }}>click me </Button>
-                    <div className="flex flex-col gap-y-2 mt-4 items-center overflow-y-auto max-h-[500px]">
+                    <Button onClick={() => setSelectedPalette(null)}>
+                        Deselect Element
+                    </Button>
+                    <div className="flex flex-col gap-y-2 mt-4 items-center">
                         {!isFetching ?
                             elements.map((element) => (
                                 <Button
                                     key={element.id}
-                                    className="h-fit w-fit"
+                                    className={`h-fit w-fit ${selectedPalette?.id === element.id ? 'ring-2 ring-blue-500' : ''}`}
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        setSelectedElement(element);
+                                        setSelectedPalette(element);
                                     }}
                                 >
-                                    <PropAnimation imageUrl={element.imageUrl} jsonData={element.jsonData}/>
+                                    <PropAnimation
+                                        imageUrl={element.imageUrl}
+                                        jsonData={element.jsonData}
+                                    />
                                 </Button>
                             )) : (<Skeleton className={"w-10 h-10"}/>)}
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default MapEditor;
