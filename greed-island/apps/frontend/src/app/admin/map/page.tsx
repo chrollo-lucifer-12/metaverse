@@ -5,7 +5,7 @@ import MapSetup from "@/components/map-editor/MapSetup";
 const Page  = async () => {
      const maps = await fetchMaps();
 
-     if (maps.length) {
+     if (maps.length || !maps) {
          return redirect(`/admin/map/${maps[0].id}`)
      }
 

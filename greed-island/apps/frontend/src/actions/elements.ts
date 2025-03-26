@@ -117,7 +117,7 @@ export const CreateMap = async (name : string, dimensions : string, thumbnail : 
             .upload(uniqueFileName(thumbnail), thumbnail);
         if (idleError) throw idleError;
         const idleImageUrl = supabase.storage.from("storage").getPublicUrl(idleData.path).data.publicUrl;
-        await axios.post( `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/map`,{
+        const res = await axios.post( `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/map`,{
             name ,
             dimensions,
             thumbnail : idleImageUrl
@@ -126,6 +126,7 @@ export const CreateMap = async (name : string, dimensions : string, thumbnail : 
                 clerkId : user.id
             }
         })
+        console.log(res);
     } catch (e) {
         console.log(e);
     }
@@ -140,6 +141,7 @@ export const fetchMapElements = async (mapId : string) => {
                 clerkId : user.id
             }
         })
+        console.log(res);
         return res.data.elements
     } catch (e) {
         console.log(e);

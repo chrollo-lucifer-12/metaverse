@@ -5,7 +5,7 @@ import FormGenerator from "@/components/form-generator";
 import {Button} from "@/components/ui/button";
 
 const CreateMapForm = () => {
-    const {errors,onFormSubmit,register,watch,isPending} = useCreateMap();
+    const {errors,onFormSubmit,register,isPending} = useCreateMap();
 
     return <form onSubmit={onFormSubmit}>
         <FormGenerator inputType={"input"} placeholder={"Enter name for map"} register={register} name={"name"} errors={errors}/>

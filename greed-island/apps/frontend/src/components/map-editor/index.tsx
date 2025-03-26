@@ -9,6 +9,7 @@ import { useQueryData } from "@/hooks/useQueryData";
 import { ElementsProps } from "@/types";
 import Grid from "@/components/map-editor/Grid";
 import MapSelector from "@/components/map-editor/MapSelector";
+import MapDialog from "@/components/map-editor/MapDialog";
 
 
 
@@ -36,29 +37,25 @@ const MapEditor = () => {
                 <span>Map Editor</span>
                 <div className="flex gap-2">
                     <MapSelector/>
-                    <Button>
-                        Create new map
-                    </Button>
+                    <MapDialog/>
                     <Button
-                        variant={mode === 'place' ? 'default' : 'outline'}
                         onClick={() => setMode('place')}
                     >
                         Place
                     </Button>
                     <Button
-                        variant={mode === 'move' ? 'default' : 'outline'}
+
                         onClick={() => setMode('move')}
                     >
                        Move
                     </Button>
                     <Button
-                        variant={mode === 'delete' ? 'default' : 'outline'}
+
                         onClick={() => setMode('delete')}
                     >
                          Delete
                     </Button>
                     <Button
-                        variant={mode === 'copy' ? 'default' : 'outline'}
                         onClick={() => setMode('copy')}
                     >
                          Copy
@@ -72,10 +69,7 @@ const MapEditor = () => {
                 <Grid currentDragElement={currentDragElement} dragOffset={dragOffset} isDragging={isDragging} mode={mode} placedElements={placedElements} selectedPalette={selectedPalette} setCurrentDragElement={setCurrentDragElement} setDragOffset={setDragOffset} setIsDragging={setIsDragging} setPlacedElements={setPlacedElements} />
                 <div className="w-1/5 border border-[#1c1b1e] rounded-md p-2 flex flex-col">
                     <p className="font-bold text-center">Elements</p>
-                    <Button onClick={() => setSelectedPalette(null)}>
-                        Deselect Element
-                    </Button>
-                    <div className="flex flex-col gap-y-2 mt-4 items-center">
+                    <div className="flex flex-col gap-y-2 mt-4 overflow-y-auto max-h-[450px] items-center">
                         {!isFetching ?
                             elements.map((element) => (
                                 <Button

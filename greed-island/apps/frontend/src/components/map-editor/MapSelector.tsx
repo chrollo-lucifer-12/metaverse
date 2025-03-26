@@ -17,7 +17,7 @@ const MapSelector = () => {
     const maps = data as MapProps;
 
     return <Select>
-        <SelectTrigger className="w-[250px]">
+        <SelectTrigger className="w-[250px] border-1 border-[#141416]">
             <SelectValue placeholder="Map" />
         </SelectTrigger>
         <SelectContent>
