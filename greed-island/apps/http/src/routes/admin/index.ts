@@ -121,7 +121,7 @@ adminRouter.post("/map", async (req, res) => {
     }
 })
 
-adminRouter.get("/map:mapId", async (req, res) => {
+adminRouter.get("/map/:mapId", async (req, res) => {
     const clerkId = req.header("clerkId");
     const mapId = req.params.mapId
     try {
@@ -132,6 +132,48 @@ adminRouter.get("/map:mapId", async (req, res) => {
         }
         const elements = await prisma.mapElements.findMany({where : {mapId}, select: {Elements : true, x : true, y : true}})
         res.status(200).json({elements});
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message : "Internal Server Error"})
+    }
+})
+
+adminRouter.put("/map/:mapId", async  (req, res) => {
+    const clerkId = req.header("clerkId");
+    const mapId = req.params.mapId
+    const {elements} = req.body
+    try {
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
+        if (!findUser || findUser.role!=="Admin") {
+            res.status(400).json({message : "User not found or not an admin"})
+            return;
+        }
+
+        await prisma.$transaction(async (tx) => {
+
+            await tx.mapElements.deleteMany({
+                where: { mapId }
+            });
+
+
+            const createPromises = elements.map(element =>
+                tx.mapElements.create({
+                    data: {
+                        mapId: mapId,
+                        elementId: element.id,
+                        x: element.x,
+                        y: element.y
+                    }
+                })
+            );
+
+            await Promise.all(createPromises);
+
+            return { success: true };
+        });
+
+        res.status(200).json({message: "Map elements updated successfully"});
+
     } catch (e) {
         console.log(e);
         res.status(500).json({message : "Internal Server Error"})

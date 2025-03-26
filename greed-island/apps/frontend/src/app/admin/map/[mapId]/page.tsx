@@ -23,7 +23,7 @@ const Page = async ({params} : {params : {mapId : string}}) => {
     return (
         <HydrationBoundary state={dehydrate(query)}>
             <div className={"h-full w-full flex justify-center items-center"}>
-                <MapEditor/>
+                <MapEditor mapId = {mapId} />
             </div>
         </HydrationBoundary>
     )

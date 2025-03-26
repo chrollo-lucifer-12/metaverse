@@ -1,8 +1,12 @@
 "use client"
 
 import PropAnimation from "@/components/animation/prop-animation";
-import React, {useRef} from "react";
+import React, {useRef, useState} from "react";
 import {PlacedElement} from "@/components/map-editor/index";
+import {useQueryData} from "@/hooks/useQueryData";
+import {fetchMapElements} from "@/actions/elements";
+import {MapElementsProps} from "@/types";
+import {useAutoSave} from "@/hooks/useAutoSave";
 
 const GRID_SIZE = 16;
 const GRID_COLOR = "rgba(128, 128, 128, 0.2)";
@@ -10,17 +14,26 @@ const GRID_COLOR = "rgba(128, 128, 128, 0.2)";
 interface GridProps {
     selectedPalette : any,
     mode : 'place' | 'move' | 'delete' | 'copy',
-    placedElements : PlacedElement[],
-    setPlacedElements :  React.Dispatch<React.SetStateAction<PlacedElement[]>>,
     setIsDragging : any,
     setCurrentDragElement : any,
     setDragOffset : any,
     isDragging : any,
     currentDragElement : any,
     dragOffset : {x : number, y : number}
+    mapId : string
 }
 
-const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurrentDragElement, setDragOffset, setIsDragging, isDragging, currentDragElement, dragOffset} : GridProps) => {
+const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, setIsDragging, isDragging, currentDragElement, dragOffset, mapId} : GridProps) => {
+
+
+    const {data, isFetching} = useQueryData(["map-elements"], () => fetchMapElements(mapId));
+
+    const initialElements = data as MapElementsProps[]
+
+    const [placedElements, setPlacedElements] = useState<MapElementsProps[]>(initialElements);
+
+    const {isPending,save} = useAutoSave(placedElements.map((e) => ({id : e.Elements.id, x : e.x!, y : e.y!})),mapId,10000);
+
     const editorRef = useRef<HTMLDivElement>(null);
 
     const snapToGrid = (value: number) => {
@@ -44,10 +57,17 @@ const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurre
             setPlacedElements(prev => [
                 ...prev,
                 {
-                    id: `element-${Date.now()}`,
-                    element: selectedPalette,
-                    x: gridX,
-                    y: gridY
+                    Elements : {
+                        height : selectedPalette.height,
+                        id : selectedPalette.id,
+                        imageUrl : selectedPalette.imageUrl,
+                        jsonData : selectedPalette.jsonData,
+                        name : selectedPalette.name,
+                        static : selectedPalette.static,
+                        width : selectedPalette.width
+                    },
+                    x : gridX,
+                    y : gridY
                 }
             ]);
         }
@@ -68,43 +88,8 @@ const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurre
         );
     };
 
-    // Handle element copying
-    const handleElementCopy = (e: React.MouseEvent) => {
-        if (mode !== 'copy' || !editorRef.current) return;
-
-        const editorRect = editorRef.current.getBoundingClientRect();
-        const gridX = snapToGrid(e.clientX - editorRect.left);
-        const gridY = snapToGrid(e.clientY - editorRect.top);
-
-        const elementToCopy = placedElements.find(placed =>
-            placed.x === gridX && placed.y === gridY
-        );
-
-        if (elementToCopy) {
-            // Find a nearby empty spot
-            const newX = gridX + GRID_SIZE;
-            const newY = gridY + GRID_SIZE;
-
-            const isSpotAvailable = !placedElements.some(placed =>
-                placed.x === newX && placed.y === newY
-            );
-
-            if (isSpotAvailable) {
-                setPlacedElements(prev => [
-                    ...prev,
-                    {
-                        id: `element-${Date.now()}`,
-                        element: elementToCopy.element,
-                        x: newX,
-                        y: newY
-                    }
-                ]);
-            }
-        }
-    };
-
     // Handle drag start
-    const handleDragStart = (e: React.MouseEvent, element: PlacedElement) => {
+    const handleDragStart = (e: React.MouseEvent, element: MapElementsProps) => {
         if (mode !== 'move') return;
 
         e.preventDefault(); // Prevent default to stop text selection
@@ -112,8 +97,8 @@ const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurre
         const editorRect = editorRef.current?.getBoundingClientRect();
         if (!editorRect) return;
 
-        const offsetX = e.clientX - (editorRect.left + element.x);
-        const offsetY = e.clientY - (editorRect.top + element.y);
+        const offsetX = e.clientX - (editorRect.left + element.x!);
+        const offsetY = e.clientY - (editorRect.top + element.y!);
 
         console.log('Drag start', { element, offsetX, offsetY });
 
@@ -142,7 +127,7 @@ const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurre
         if (!isOccupied) {
             setPlacedElements(prev =>
                 prev.map(item =>
-                    item.id === currentDragElement.id
+                    item.Elements.id === currentDragElement.Elements.id
                         ? { ...item, x: newX, y: newY }
                         : item
                 )
@@ -212,9 +197,7 @@ const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurre
     return <div
         ref={editorRef}
         className="relative flex-1 border border-[#1c1b1e] rounded-md overflow-hidden"
-        onClick={mode === 'place' ? handleElementPlacement :
-            mode === 'delete' ? handleElementDeletion :
-                mode === 'copy' ? handleElementCopy : undefined}
+        onClick={mode === 'place' ? handleElementPlacement : mode === 'delete' ? handleElementDeletion : undefined}
         onMouseMove={handleDragMove}
         onMouseUp={handleDragEnd}
         onMouseLeave={handleDragEnd}
@@ -222,7 +205,7 @@ const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurre
         {renderGridBackground()}
         {placedElements.map((placed) => (
             <div
-                key={placed.id}
+                key={placed.Elements.id}
                 style={{
                     position: 'absolute',
                     left: `${placed.x}px`,
@@ -231,11 +214,10 @@ const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurre
                     cursor: mode === 'move' ? 'move' : 'default'
                 }}
                 onMouseDown={(e) => handleDragStart(e, placed)}
-
             >
                 <PropAnimation
-                    imageUrl={placed.element.imageUrl}
-                    jsonData={placed.element.jsonData}
+                    imageUrl={placed.Elements.imageUrl}
+                    jsonData={placed.Elements.jsonData}
                 />
             </div>
         ))}

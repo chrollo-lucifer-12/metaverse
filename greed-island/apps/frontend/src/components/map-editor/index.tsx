@@ -20,9 +20,8 @@ export type PlacedElement = {
     y: number;
 };
 
-const MapEditor = () => {
+const MapEditor = ({mapId} : {mapId : string}) => {
     const [selectedPalette, setSelectedPalette] = useState<any>(null);
-    const [placedElements, setPlacedElements] = useState<PlacedElement[]>([]);
     const [mode, setMode] = useState<'place' | 'move' | 'delete' | 'copy'>('place');
     const [isDragging, setIsDragging] = useState(false);
     const [currentDragElement, setCurrentDragElement] = useState<PlacedElement | null>(null);
@@ -66,7 +65,7 @@ const MapEditor = () => {
                 className="flex flex-1 gap-6 p-3"
 
             >
-                <Grid currentDragElement={currentDragElement} dragOffset={dragOffset} isDragging={isDragging} mode={mode} placedElements={placedElements} selectedPalette={selectedPalette} setCurrentDragElement={setCurrentDragElement} setDragOffset={setDragOffset} setIsDragging={setIsDragging} setPlacedElements={setPlacedElements} />
+                <Grid currentDragElement={currentDragElement} dragOffset={dragOffset} isDragging={isDragging} mode={mode} selectedPalette={selectedPalette} setCurrentDragElement={setCurrentDragElement} setDragOffset={setDragOffset} setIsDragging={setIsDragging} mapId={mapId} />
                 <div className="w-1/5 border border-[#1c1b1e] rounded-md p-2 flex flex-col">
                     <p className="font-bold text-center">Elements</p>
                     <div className="flex flex-col gap-y-2 mt-4 overflow-y-auto max-h-[450px] items-center">

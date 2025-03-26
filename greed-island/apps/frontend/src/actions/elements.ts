@@ -148,3 +148,19 @@ export const fetchMapElements = async (mapId : string) => {
         return [];
     }
 }
+
+export const updateElements = async (mapId : string, elements : {id : string, x : number, y : number}[]) => {
+    try {
+        const user = await currentUser();
+        if (!user) throw new Error("User not authenticated");
+        await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/map/${mapId}`, {
+            elements
+        }, {
+            headers : {
+                clerkId : user.id
+            }
+        })
+    } catch (e) {
+        console.log(e);
+    }
+}

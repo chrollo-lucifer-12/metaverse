@@ -3,3 +3,5 @@ export type AvatarsProps = {     id: string  ,   imageUrl: string ,    name: str
 export type ElementsProps ={ id: string   , name : string,  imageUrl: string   ,  width: number  ,  jsonData : JSON, height: number  ,   static: boolean}[]
 
 export type MapProps = {id : string, name : string}[]
+
+export type MapElementsProps = {Elements: {         imageUrl: string     ,    width: number,         height: number  ,       jsonData: JSON,         name: string  ,       id: string     ,    static: boolean     }  ,   x: number | null   ,  y: number | null}
