@@ -241,5 +241,4 @@ const Grid = ({mode, selectedPalette, placedElements,setPlacedElements, setCurre
         ))}
     </div>
 }
-
 export default Grid

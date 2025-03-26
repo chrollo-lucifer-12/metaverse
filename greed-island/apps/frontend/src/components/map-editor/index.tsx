@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropAnimation from "@/components/animation/prop-animation";
@@ -8,6 +8,7 @@ import { fetchElements } from "@/actions/elements";
 import { useQueryData } from "@/hooks/useQueryData";
 import { ElementsProps } from "@/types";
 import Grid from "@/components/map-editor/Grid";
+import MapSelector from "@/components/map-editor/MapSelector";
 
 
 
@@ -34,6 +35,7 @@ const MapEditor = () => {
             <div className="border-b border-[#1c1b1e] p-3 flex justify-between items-center">
                 <span>Map Editor</span>
                 <div className="flex gap-2">
+                    <MapSelector/>
                     <Button>
                         Create new map
                     </Button>
