@@ -90,7 +90,7 @@ adminRouter.post("/avatar", async (req, res) => {
 })
 
 adminRouter.post("/map", async (req, res) => {
-    const {thumbnail, dimensions, name, defaultElements} = req.body;
+    const {thumbnail, dimensions, name} = req.body;
     const clerkId = req.header("clerkId");
 
     if (!thumbnail || !name || !dimensions) {
@@ -105,23 +105,13 @@ adminRouter.post("/map", async (req, res) => {
             return;
         }
         const [width, height] = dimensions.split("x").map(Number);
-        const map = await prisma.map.create({
+        await prisma.map.create({
             data : {
                 width,
                 height,
                 thumbnail,
                 name,
             }
-        })
-        defaultElements.map(async (e : any) => {
-            await prisma.mapElements.create({
-                data : {
-                    mapId : map.id,
-                    x : e.x,
-                    y : e.y,
-                    elementId : e.elementId
-                }
-            })
         })
         res.status(200).json({message : "map created"})
         return;

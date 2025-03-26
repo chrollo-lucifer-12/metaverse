@@ -106,3 +106,27 @@ export const CreateElement = async (name : string, width : string, height : stri
         console.log(e);
     }``
 }
+
+export const CreateMap = async (name : string, dimensions : string, thumbnail : File) => {
+    try {
+        const user = await currentUser();
+        if (!user) throw new Error("User not authenticated");
+        const uniqueFileName = (file: File) => `uploads/${crypto.randomUUID()}_${file.name}`;
+        const { data: idleData, error: idleError } = await supabase.storage
+            .from("storage")
+            .upload(uniqueFileName(thumbnail), thumbnail);
+        if (idleError) throw idleError;
+        const idleImageUrl = supabase.storage.from("storage").getPublicUrl(idleData.path).data.publicUrl;
+        await axios.post( `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/map`,{
+            name ,
+            dimensions,
+            thumbnail : idleImageUrl
+        }, {
+            headers : {
+                clerkId : user.id
+            }
+        })
+    } catch (e) {
+        console.log(e);
+    }
+}

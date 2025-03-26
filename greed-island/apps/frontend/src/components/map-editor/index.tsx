@@ -34,6 +34,9 @@ const MapEditor = () => {
             <div className="border-b border-[#1c1b1e] p-3 flex justify-between items-center">
                 <span>Map Editor</span>
                 <div className="flex gap-2">
+                    <Button>
+                        Create new map
+                    </Button>
                     <Button
                         variant={mode === 'place' ? 'default' : 'outline'}
                         onClick={() => setMode('place')}

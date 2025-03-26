@@ -29,3 +29,9 @@ export const elementSchema = z.object({
     isStatic : z.boolean(),
     jsonData : z.string()
 })
+
+export const mapSchema = z.object({
+    name : z.string().min(1, {message : "Name cannot be empty"}),
+    dimensions : z.string(),
+    thumbnail : imageSchema
+})

@@ -1,23 +1,15 @@
-import MapEditor from "@/components/map-editor";
-import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
 import {fetchMaps} from "@/actions/elements";
+import {redirect} from "next/navigation";
+import MapSetup from "@/components/map-editor/MapSetup";
 
-const Page = async () => {
+const Page  = async () => {
+     const maps = await fetchMaps();
 
-    const query = new QueryClient();
+     if (maps.length) {
+         return redirect(`/admin/map/${maps[0].id}`)
+     }
 
-    await query.prefetchQuery({
-        queryKey: ["maps"],
-        queryFn: () => fetchMaps()
-    })
-
-    return (
-        <HydrationBoundary state={dehydrate(query)}>
-            <div className={"h-full w-full flex justify-center items-center"}>
-                <MapEditor/>
-            </div>
-        </HydrationBoundary>
-    )
+     return <MapSetup/>
 }
 
 export default Page
