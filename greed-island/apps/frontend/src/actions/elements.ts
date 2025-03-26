@@ -130,3 +130,19 @@ export const CreateMap = async (name : string, dimensions : string, thumbnail : 
         console.log(e);
     }
 }
+
+export const fetchMapElements = async (mapId : string) => {
+    try {
+        const user = await currentUser();
+        if (!user) throw new Error("User not authenticated");
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/map/${mapId}`, {
+            headers : {
+                clerkId : user.id
+            }
+        })
+        return res.data.elements
+    } catch (e) {
+        console.log(e);
+        return [];
+    }
+}

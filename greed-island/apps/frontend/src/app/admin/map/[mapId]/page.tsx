@@ -1,15 +1,23 @@
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
-import {fetchMaps} from "@/actions/elements";
+import {fetchMapElements, fetchMaps} from "@/actions/elements";
 import MapEditor from "@/components/map-editor";
 
 // add params
 
-const Page = async () => {
+const Page = async ({params} : {params : {mapId : string}}) => {
+
+    const {mapId} = await params
+
     const query = new QueryClient();
 
     await query.prefetchQuery({
         queryKey: ["maps"],
         queryFn: () => fetchMaps()
+    })
+
+    await query.prefetchQuery({
+        queryKey : ["map-elements"],
+        queryFn : () => fetchMapElements(mapId)
     })
 
     return (

@@ -121,4 +121,21 @@ adminRouter.post("/map", async (req, res) => {
     }
 })
 
+adminRouter.get("/map:mapId", async (req, res) => {
+    const clerkId = req.header("clerkId");
+    const mapId = req.params.mapId
+    try {
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
+        if (!findUser || findUser.role!=="Admin") {
+            res.status(400).json({message : "User not found or not an admin"})
+            return;
+        }
+        const elements = await prisma.mapElements.findMany({where : {mapId}, select: {Elements : true, x : true, y : true}})
+        res.status(200).json({elements});
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message : "Internal Server Error"})
+    }
+})
+
 export default adminRouter
