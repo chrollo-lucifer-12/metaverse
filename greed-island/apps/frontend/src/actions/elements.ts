@@ -24,6 +24,16 @@ export const fetchElements = async () => {
     }
 }
 
+export const fetchMaps = async () => {
+    try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/maps`);
+        return res.data.maps;
+    } catch (e) {
+        console.log(e);
+        return [];
+    }
+}
+
 export const CreateAvatar = async (
     name: string,
     idleImage: File,

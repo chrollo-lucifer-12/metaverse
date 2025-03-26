@@ -34,4 +34,15 @@ router.get("/elements", async (req, res) => {
     }
 })
 
+router.get("/maps", async (req, res) => {
+    try {
+        const maps = await prisma.map.findMany({select : {name : true, id : true}});
+        res.json(200).json({maps});
+        return;
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message : "Internal Server Error"})
+    }
+})
+
 export default router
