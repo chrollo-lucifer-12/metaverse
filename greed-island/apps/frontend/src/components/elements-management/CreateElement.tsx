@@ -8,10 +8,17 @@ import {
 import {PlusIcon} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import CreateElementForm from "@/components/elements-management/CreateElementForm";
+import {useState} from "react";
 
 
 const CreateElement = () => {
-    return <Dialog>
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleClose = () => {
+        setIsOpen(false);
+    }
+
+    return <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger >
             <Button className = "cursor-pointer">
                 <PlusIcon/>
@@ -23,7 +30,7 @@ const CreateElement = () => {
             <DialogHeader>
                 <DialogTitle>Add a new element to your collection</DialogTitle>
             </DialogHeader>
-            <CreateElementForm/>
+            <CreateElementForm onClose={handleClose}/>
         </DialogContent>
     </Dialog>
 

@@ -2,10 +2,20 @@ import {useCreateElement} from "@/hooks/useCreateElement";
 import FormGenerator from "@/components/form-generator";
 import {Button} from "@/components/ui/button";
 
-const CreateElementForm = () => {
-    const {errors,isPending,onFormSubmit,register,watch} = useCreateElement()
+const CreateElementForm = ({onClose} : {onClose : any}) => {
+    const {errors,isPending,onFormSubmit,register,watch,reset} = useCreateElement()
 
-    return <form onSubmit={onFormSubmit}>
+    const handleSubmit = async (e : any) => {
+        e.preventDefault();
+        try {
+            await onFormSubmit();
+            reset()
+            onClose()
+        } catch (e) {
+
+        }
+    }
+    return <form onSubmit={handleSubmit}>
         <FormGenerator inputType={"input"} placeholder={"Enter name for element"} register={register} name={"name"} errors={errors}/>
         <FormGenerator inputType={"input"} placeholder={"Enter width for element"} register={register} name={"width"} errors={errors}/>
         <FormGenerator inputType={"input"} placeholder={"Enter height for element"} register={register} name={"height"} errors={errors}/>

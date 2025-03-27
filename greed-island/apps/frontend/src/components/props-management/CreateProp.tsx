@@ -5,15 +5,23 @@ import {
     DialogTitle,
     DialogTrigger,
     DialogPortal, DialogOverlay,
-
+    DialogClose
 } from "@/components/ui/dialog"
 import {PlusIcon} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import CreatePropForm from "@/components/props-management/CreatePropForm";
+import {useState} from "react";
 
 
 const CreateProp = () => {
-    return <Dialog>
+
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleClose = () => {
+        setIsOpen(false);
+    }
+
+    return <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger >
             <Button className={"cursor-pointer"}>
                 <PlusIcon/>
@@ -25,7 +33,7 @@ const CreateProp = () => {
             <DialogHeader>
                 <DialogTitle>Add a new prop to your collection</DialogTitle>
             </DialogHeader>
-            <CreatePropForm/>
+            <CreatePropForm onClose = {handleClose}/>
         </DialogContent>
     </Dialog>
 }

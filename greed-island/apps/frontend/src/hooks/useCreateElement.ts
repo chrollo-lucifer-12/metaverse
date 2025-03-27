@@ -7,6 +7,6 @@ import { CreateElement} from "@/actions/elements";
 
 export const useCreateElement = () => {
     const {mutate, isPending} = useMutationData(["create-element"], (data) => CreateElement(data.name, data.width, data.height, data.image, data.jsonData, data.isStatic), "elements")
-    const {errors, onFormSubmit, register, watch} = useZodForm(elementSchema, mutate);
-    return {errors, onFormSubmit, register, isPending, watch};
+    const {errors, onFormSubmit, register, watch, reset} = useZodForm(elementSchema, mutate);
+    return {errors, onFormSubmit, register, isPending, watch, reset};
 }

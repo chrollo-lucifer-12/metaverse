@@ -2,9 +2,20 @@ import {useCreateProp} from "@/hooks/useCreateProp";
 import {Button} from "@/components/ui/button";
 import FormGenerator from "@/components/form-generator";
 
-const CreatePropForm = () => {
-    const {errors, isPending, onFormSubmit, register} = useCreateProp();
-    return <form onSubmit={onFormSubmit}>
+const CreatePropForm = ({onClose} : {onClose : any}) => {
+    const {errors, isPending, onFormSubmit, register, reset} = useCreateProp();
+
+    const handleSubmit = async () => {
+        try {
+            await onFormSubmit();
+            reset();
+            onClose();
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    return <form onSubmit={handleSubmit}>
         <FormGenerator inputType={"input"} placeholder={"Enter name for avatar"} register={register} name={"name"}
                        errors={errors} label={"Name"} />
         <FormGenerator inputType={"input"} placeholder={"Idle image"} register={register} name={"idleImage"}

@@ -7,6 +7,6 @@ import {CreateMap} from "@/actions/elements";
 
 export const useCreateMap = () => {
     const {isPending, mutate} = useMutationData(["create-map"], (data) => CreateMap(data.name, data.dimensions, data.thumbnail), "maps");
-    const {errors, onFormSubmit, register, watch} = useZodForm(mapSchema, mutate);
-    return {errors, onFormSubmit, register, watch, isPending}
+    const {errors, onFormSubmit, register, watch, reset} = useZodForm(mapSchema, mutate);
+    return {errors, onFormSubmit, register, watch, isPending, reset}
 }

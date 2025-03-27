@@ -21,8 +21,6 @@ const MapSetup = () => {
                 <CreateMapForm/>
             </CardContent>
         </Card>
-
-
     </div>
     )
 }
