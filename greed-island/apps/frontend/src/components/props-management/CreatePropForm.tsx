@@ -15,7 +15,7 @@ const CreatePropForm = () => {
                        errors={errors} type={"file"} label={"Running Image"} />
         <FormGenerator inputType={"input"} placeholder={"Enter json for running avatar"} register={register}
                        name={"runningJson"} errors={errors} type={"text"} label={"Running json"} />
-        <Button type="submit" disabled={isPending} className="mt-2 bg-white text-black w-full hover:bg-gray-200"
+        <Button type="submit" disabled={isPending} className="mt-2 bg-white text-black w-full hover:bg-gray-200 cursor-pointer"
                 style={{borderRadius: "0.4rem"}}>
             {
                 isPending ? "Creating" : "Create"

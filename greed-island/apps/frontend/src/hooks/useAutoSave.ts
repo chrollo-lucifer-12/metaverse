@@ -20,6 +20,7 @@ export const useAutoSave = (elements : {id : string, x : number, y : number}[] ,
 
         autoSaveTimerRef.current = setTimeout(async () => {
             try {
+                console.log(elements);
                 mutate({mapId, elements});
                 console.log('Auto-save successful');
             } catch (error) {

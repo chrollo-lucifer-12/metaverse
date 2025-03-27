@@ -73,7 +73,7 @@ const EntityAnimation = ({ idleSpritesheet, idleJson, runningSpritesheet, runnin
 
                 <Button
                     onClick={toggleAnimation}
-                    className="transition duration-150"
+                    className="transition duration-150 cursor-pointer"
                 >
                     {isRunning ? "Show Idle" : "Show Running"}
                 </Button>

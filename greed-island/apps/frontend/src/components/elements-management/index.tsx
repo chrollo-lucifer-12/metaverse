@@ -12,8 +12,8 @@ const ElementsManagement = () => {
     const elements = data as ElementsProps
 
     return (
-        <div className="container mx-auto px-4">
-            <div className="text-white mt-10 flex items-center justify-between">
+        <div className="mt-10 ml-6 mr-6">
+            <div className="text-white  flex items-center justify-between">
                 <div>
                     <p className="text-5xl font-bold">Props</p>
                     <p className="text-sm mt-3 text-[#7f8086]">Add, edit, and manage props for your metaverse world.</p>

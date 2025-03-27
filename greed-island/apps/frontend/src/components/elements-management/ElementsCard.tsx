@@ -21,8 +21,17 @@ const PropCard = ({imageUrl, name, jsonData, onClick} : PropCardProps) => {
             <HoverCardTrigger>
                 <Card
                     onClick={onClick}
-                    className={"border-1 border-[#232325] bg-transparent text-white w-20 h-20 rounded-full hover:ring-1 transition duration-200"}>
-                    <CardContent className={"flex justify-center items-center h-full"}>
+                    className={
+                        "border-1 border-[#232325] bg-transparent text-white " +
+                        "w-64 h-64 flex flex-col " + // Fixed width and height, flex layout
+                        "hover:ring-1 hover:ring-blue-500 hover:cursor-pointer " +
+                        "transition duration-200 overflow-hidden group"
+                    }>
+                    <CardContent className={
+                        "flex justify-center items-center " +
+                        "w-full h-full " +
+                        "group-hover:scale-105 transition duration-300"
+                    }>
                         <PropAnimation imageUrl={imageUrl} jsonData={jsonData}/>
                     </CardContent>
                 </Card>
