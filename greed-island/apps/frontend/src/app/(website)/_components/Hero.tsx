@@ -2,7 +2,7 @@ import {Button} from "@/components/ui/button";
 import {ArrowRight} from "lucide-react";
 
 const Hero = () => {
-    return <main className={"flex-1"}>
+    return <main className={"flex-1 bg-[#2d2d2f]"}>
         <section className={"relative overflow-hidden py-20 md:py-32"}>
             <div
                 className="absolute inset-0 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center opacity-20"></div>
