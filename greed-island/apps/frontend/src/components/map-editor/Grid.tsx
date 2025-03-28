@@ -32,36 +32,30 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
 
     const [placedElements, setPlacedElements] = useState<MapElementsProps[]>(initialElements);
 
-    const {isPending,save} = useAutoSave(
-        placedElements.map((e) => ({
-            id: e.Elements.id.indexOf('@') !== -1
-                ? e.Elements.id.substring(0, e.Elements.id.indexOf('@'))
-                : e.Elements.id,
-            x: e.x!,
-            y: e.y!
-        })),
+    const { isPending, save } = useAutoSave(
+        placedElements.map((e) => (
+            {
+                id : e.id,
+                elementId : e.Elements.id,
+                x : e.x!,
+                y : e.y!
+            }
+        )),
         mapId,
         10000
     );
 
-    const editorRef = useRef<HTMLDivElement>(null);
 
-    const snapToGrid = (value: number) => {
-        return Math.round(value / GRID_SIZE) * GRID_SIZE;
-    };
+    const editorRef = useRef<HTMLDivElement>(null);
 
 
     const handleElementPlacement = (e: React.MouseEvent) => {
         if (!selectedPalette || mode !== 'place' || !editorRef.current) return;
 
         const editorRect = editorRef.current.getBoundingClientRect();
-        const gridX = snapToGrid(e.clientX - editorRect.left);
-        const gridY = snapToGrid(e.clientY - editorRect.top);
+        const gridX = (e.clientX - editorRect.left);
+        const gridY = (e.clientY - editorRect.top);
 
-        // Create a unique key for each placement, even if the element type is the same
-        const newElementId = `${selectedPalette.id}@${Date.now()}`;
-
-        // Check if the spot is already occupied
         const isOccupied = placedElements.some(placed =>
             placed.x === gridX && placed.y === gridY
         );
@@ -72,10 +66,10 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
                 {
                     Elements : {
                         ...selectedPalette,
-                        newId: newElementId // Use a unique ID
                     },
                     x : gridX,
-                    y : gridY
+                    y : gridY,
+                    id : crypto.randomUUID()
                 }
             ]);
         }
@@ -86,8 +80,8 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
         if (mode !== 'delete' || !editorRef.current) return;
 
         const editorRect = editorRef.current.getBoundingClientRect();
-        const gridX = snapToGrid(e.clientX - editorRect.left);
-        const gridY = snapToGrid(e.clientY - editorRect.top);
+        const gridX = (e.clientX - editorRect.left);
+        const gridY = (e.clientY - editorRect.top);
 
         setPlacedElements(prev =>
             prev.filter(placed =>
@@ -124,19 +118,19 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
 
         const editorRect = editorRef.current.getBoundingClientRect();
 
-        const newX = snapToGrid(e.clientX - editorRect.left - dragOffset.x);
-        const newY = snapToGrid(e.clientY - editorRect.top - dragOffset.y);
+        const newX = (e.clientX - editorRect.left - dragOffset.x);
+        const newY = (e.clientY - editorRect.top - dragOffset.y);
         const isOccupied = placedElements.some(placed =>
-            placed !== currentDragElement && // Ensure you're not comparing the same element
+            placed !== currentDragElement &&
             placed.x === newX &&
             placed.y === newY &&
-            placed.Elements.id === currentDragElement.Elements.id // Add this condition
+            placed.id === currentDragElement.id
         );
 
         if (!isOccupied) {
             setPlacedElements(prev =>
                 prev.map(item =>
-                    item.Elements.id === currentDragElement.Elements.id
+                    item.id === currentDragElement.id
                         ? { ...item, x: newX, y: newY }
                         : item
                 )
@@ -146,7 +140,6 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
 
     // Handle drag end
     const handleDragEnd = (e: React.MouseEvent) => {
-        console.log('Drag end');
         setIsDragging(false);
         setCurrentDragElement(null);
     };
@@ -204,12 +197,14 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
 
     return <div
         ref={editorRef}
-        className="relative flex-1 border border-[#1c1b1e] rounded-md overflow-hidden"
+        className="relative flex-1 border border-[#1c1b1e] overflow-hidden"
         onClick={mode === 'place' ? handleElementPlacement : mode === 'delete' ? handleElementDeletion : undefined}
         onMouseMove={handleDragMove}
         onMouseUp={handleDragEnd}
         onMouseLeave={handleDragEnd}
     >
+
+
         {renderGridBackground()}
         {placedElements.map((placed,index) => (
             <div

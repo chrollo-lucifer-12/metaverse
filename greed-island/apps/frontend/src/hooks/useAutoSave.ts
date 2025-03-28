@@ -7,7 +7,7 @@ import {updateElements} from "@/actions/elements";
 import {useCallback, useEffect, useRef} from "react";
 
 
-export const useAutoSave = (elements : {id : string, x : number, y : number}[] ,mapId : string, delay? : number) => {
+export const useAutoSave = (elements : {id : string, elementId : string, x : number, y : number}[],mapId : string, delay? : number) => {
     const {mutate,isPending} = useMutationData(["update-mapelements"], (data) => updateElements(data.mapId, data.elements));
 
     const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -20,7 +20,6 @@ export const useAutoSave = (elements : {id : string, x : number, y : number}[] ,
 
         autoSaveTimerRef.current = setTimeout(async () => {
             try {
-                console.log(elements);
                 mutate({mapId, elements});
                 console.log('Auto-save successful');
             } catch (error) {

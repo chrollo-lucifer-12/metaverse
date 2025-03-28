@@ -130,7 +130,7 @@ adminRouter.get("/map/:mapId", async (req, res) => {
             res.status(400).json({message : "User not found or not an admin"})
             return;
         }
-        const elements = await prisma.mapElements.findMany({where : {mapId}, select: {Elements : true, x : true, y : true}})
+        const elements = await prisma.mapElements.findMany({where : {mapId}, select: {Elements : true, x : true, y : true, id : true}})
         res.status(200).json({elements});
     } catch (e) {
         console.log(e);
@@ -160,9 +160,10 @@ adminRouter.put("/map/:mapId", async  (req, res) => {
                 tx.mapElements.create({
                     data: {
                         mapId: mapId,
-                        elementId: element.id,
+                        elementId: element.elementId,
                         x: element.x,
-                        y: element.y
+                        y: element.y,
+                        id : element.id
                     }
                 })
             );
