@@ -149,29 +149,20 @@ adminRouter.put("/map/:mapId", async  (req, res) => {
             return;
         }
 
-        await prisma.$transaction(async (tx) => {
-
-            await tx.mapElements.deleteMany({
+        await prisma.$transaction([
+            prisma.mapElements.deleteMany({
                 where: { mapId }
-            });
-
-
-            const createPromises = elements.map(element =>
-                tx.mapElements.create({
-                    data: {
-                        mapId: mapId,
-                        elementId: element.elementId,
-                        x: element.x,
-                        y: element.y,
-                        id : element.id
-                    }
-                })
-            );
-
-            await Promise.all(createPromises);
-
-            return { success: true };
-        });
+            }),
+            prisma.mapElements.createMany({
+                data: elements.map(element => ({
+                    mapId,
+                    elementId: element.elementId,
+                    x: element.x,
+                    y: element.y,
+                    id: element.id
+                }))
+            })
+        ]);
 
         res.status(200).json({message: "Map elements updated successfully"});
 

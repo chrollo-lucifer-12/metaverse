@@ -7,6 +7,7 @@ import {useQueryData} from "@/hooks/useQueryData";
 import {fetchMapElements} from "@/actions/elements";
 import {MapElementsProps} from "@/types";
 import {useAutoSave} from "@/hooks/useAutoSave";
+import {Button} from "@/components/ui/button";
 
 const GRID_SIZE = 16;
 const GRID_COLOR = "rgba(128, 128, 128, 0.2)";
@@ -32,17 +33,16 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
 
     const [placedElements, setPlacedElements] = useState<MapElementsProps[]>(initialElements);
 
-    const { isPending, save } = useAutoSave(
+    const {isPending, save} = useAutoSave(
         placedElements.map((e) => (
             {
-                id : e.id,
-                elementId : e.Elements.id,
-                x : e.x!,
-                y : e.y!
+                id: e.id,
+                elementId: e.Elements.id,
+                x: e.x!,
+                y: e.y!
             }
         )),
-        mapId,
-        30000
+        mapId
     );
 
     const snapToGrid = (value: number) => {
@@ -67,12 +67,12 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
             setPlacedElements(prev => [
                 ...prev,
                 {
-                    Elements : {
+                    Elements: {
                         ...selectedPalette,
                     },
-                    x : gridX,
-                    y : gridY,
-                    id : crypto.randomUUID()
+                    x: gridX,
+                    y: gridY,
+                    id: crypto.randomUUID()
                 }
             ]);
         }
@@ -105,11 +105,11 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
         const offsetX = snapToGrid(e.clientX - (editorRect.left + element.x!));
         const offsetY = snapToGrid(e.clientY - (editorRect.top + element.y!));
 
-        console.log('Drag start', { element, offsetX, offsetY });
+        console.log('Drag start', {element, offsetX, offsetY});
 
         setIsDragging(true);
         setCurrentDragElement(element);
-        setDragOffset({ x: offsetX, y: offsetY });
+        setDragOffset({x: offsetX, y: offsetY});
     };
 
     // Handle drag move
@@ -134,7 +134,7 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
             setPlacedElements(prev =>
                 prev.map(item =>
                     item.id === currentDragElement.id
-                        ? { ...item, x: newX, y: newY }
+                        ? {...item, x: newX, y: newY}
                         : item
                 )
             );
@@ -198,35 +198,38 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
         );
     };
 
-    return <div
-        ref={editorRef}
-        className="relative flex-1 border border-[#1c1b1e] overflow-hidden"
-        onClick={mode === 'place' ? handleElementPlacement : mode === 'delete' ? handleElementDeletion : undefined}
-        onMouseMove={handleDragMove}
-        onMouseUp={handleDragEnd}
-        onMouseLeave={handleDragEnd}
-    >
-
-
-        {renderGridBackground()}
-        {placedElements.map((placed,index) => (
-            <div
-                key={index}
-                style={{
-                    position: 'absolute',
-                    left: `${placed.x}px`,
-                    top: `${placed.y}px`,
-                    border: mode === 'move' ? '2px solid blue' : 'none',
-                    cursor: mode === 'move' ? 'move' : 'default'
-                }}
-                onMouseDown={(e) => handleDragStart(e, placed)}
-            >
-                <PropAnimation
-                    imageUrl={placed.Elements.imageUrl}
-                    jsonData={placed.Elements.jsonData}
-                />
-            </div>
-        ))}
-    </div>
+    return <>
+        <div
+            ref={editorRef}
+            className="relative flex-1 border border-[#1c1b1e] overflow-hidden"
+            onClick={mode === 'place' ? handleElementPlacement : mode === 'delete' ? handleElementDeletion : undefined}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+        >
+            {renderGridBackground()}
+            {placedElements.map((placed, index) => (
+                <div
+                    key={index}
+                    style={{
+                        position: 'absolute',
+                        left: `${placed.x}px`,
+                        top: `${placed.y}px`,
+                        border: mode === 'move' ? '2px solid blue' : 'none',
+                        cursor: mode === 'move' ? 'move' : 'default'
+                    }}
+                    onMouseDown={(e) => handleDragStart(e, placed)}
+                >
+                    <PropAnimation
+                        imageUrl={placed.Elements.imageUrl}
+                        jsonData={placed.Elements.jsonData}
+                    />
+                </div>
+            ))}
+        </div>
+        <Button disabled={isPending} onClick={save}>{
+            isPending ? "Saving" : "Save"
+        }</Button>
+    </>
 }
 export default Grid

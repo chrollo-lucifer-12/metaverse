@@ -7,6 +7,7 @@ export const useAutoSave = (elements : {id : string, elementId : string, x : num
     const {mutate,isPending} = useMutationData(["update-mapelements"], (data) => updateElements(data.mapId, data.elements));
 
     const saveToDB = () => {
+        if (isPending) return;
         mutate({mapId, elements});
         console.log('Auto-save successful');
     }
