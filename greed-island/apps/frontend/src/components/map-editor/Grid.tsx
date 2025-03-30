@@ -42,9 +42,12 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
             }
         )),
         mapId,
-        10000
+        30000
     );
 
+    const snapToGrid = (value: number) => {
+        return Math.round(value / GRID_SIZE) * GRID_SIZE;
+    };
 
     const editorRef = useRef<HTMLDivElement>(null);
 
@@ -53,8 +56,8 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
         if (!selectedPalette || mode !== 'place' || !editorRef.current) return;
 
         const editorRect = editorRef.current.getBoundingClientRect();
-        const gridX = (e.clientX - editorRect.left);
-        const gridY = (e.clientY - editorRect.top);
+        const gridX = snapToGrid(e.clientX - editorRect.left);
+        const gridY = snapToGrid(e.clientY - editorRect.top);
 
         const isOccupied = placedElements.some(placed =>
             placed.x === gridX && placed.y === gridY
@@ -99,8 +102,8 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
         const editorRect = editorRef.current?.getBoundingClientRect();
         if (!editorRect) return;
 
-        const offsetX = e.clientX - (editorRect.left + element.x!);
-        const offsetY = e.clientY - (editorRect.top + element.y!);
+        const offsetX = snapToGrid(e.clientX - (editorRect.left + element.x!));
+        const offsetY = snapToGrid(e.clientY - (editorRect.top + element.y!));
 
         console.log('Drag start', { element, offsetX, offsetY });
 
@@ -118,8 +121,8 @@ const Grid = ({mode, selectedPalette,  setCurrentDragElement, setDragOffset, set
 
         const editorRect = editorRef.current.getBoundingClientRect();
 
-        const newX = (e.clientX - editorRect.left - dragOffset.x);
-        const newY = (e.clientY - editorRect.top - dragOffset.y);
+        const newX = snapToGrid(e.clientX - editorRect.left - dragOffset.x);
+        const newY = snapToGrid(e.clientY - editorRect.top - dragOffset.y);
         const isOccupied = placedElements.some(placed =>
             placed !== currentDragElement &&
             placed.x === newX &&
