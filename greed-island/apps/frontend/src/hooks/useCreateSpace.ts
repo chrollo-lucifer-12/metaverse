@@ -8,6 +8,6 @@ import {CreateSpace} from "@/actions/elements";
 export const useCreateSpace = () => {
     const {mutate,isPending} = useMutationData(["create-space"], (data) => CreateSpace(data.name, data.dimensions, data.thumbnail, data.mapId), "spaces");
 
-    const {errors, onFormSubmit, register, watch, reset} = useZodForm(spaceSchema, mutate);
-    return {errors, onFormSubmit, register, isPending, watch, reset};
+    const {errors, onFormSubmit, register, watch, reset, control} = useZodForm(spaceSchema, mutate);
+    return {errors, control ,onFormSubmit, register, isPending, watch, reset};
 }

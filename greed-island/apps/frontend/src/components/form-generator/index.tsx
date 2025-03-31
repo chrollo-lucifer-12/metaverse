@@ -1,4 +1,4 @@
-import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
+import {Control, Controller, FieldErrors, FieldValues, UseFormRegister} from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ErrorMessage } from "@hookform/error-message";
@@ -14,6 +14,7 @@ interface FormGeneratorProps {
     name: string;
     errors: FieldErrors<FieldValues>;
     lines?: number;
+    control?: Control<any>; // Add this line
 }
 
 const FormGenerator = ({
@@ -26,6 +27,7 @@ const FormGenerator = ({
                            placeholder,
                            register,
                            type,
+    control
                        }: FormGeneratorProps) => {
     switch (inputType) {
         case "input":
@@ -118,39 +120,40 @@ const FormGenerator = ({
                     <Label htmlFor={name} className="block mb-1">
                         {label}
                     </Label>
-                    <Select
-                        onValueChange={(value) => {
-                            const selectedOption = options?.find(option => option.value === value);
-                            if (selectedOption) {
-                                register(name).onChange({
-                                    target: { name, value: selectedOption.id }
-                                });
-                            }
-                        }}
-                        defaultValue=""
-                    >
-                        <SelectTrigger
-                            className="w-full border-[#232325] bg-black/50 text-white focus:ring-2 focus:ring-blue-500"
-                            style={{borderRadius: "0.4rem"}}>
-                            <SelectValue placeholder={placeholder || "Select a map"}/>
-                        </SelectTrigger>
-                        <SelectContent >
-                            {
-                                options?.map((option) => (
-                                    <SelectItem  value={option.id}>{option.name}</SelectItem>
-                                ))
-                            }
-                        </SelectContent>
-                    </Select>
+                    <Controller
+                        name={name}
+                        control={control}
+                        render={({ field }) => (
+                            <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                            >
+                                <SelectTrigger
+                                    className="w-full border-[#232325] bg-black/50 text-white focus:ring-2 focus:ring-blue-500"
+                                    style={{ borderRadius: "0.4rem" }}
+                                >
+                                    <SelectValue placeholder={placeholder || "Select a map"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {options?.map((option) => (
+                                        <SelectItem key={option.id} value={option.id}>
+                                            {option.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                     <ErrorMessage
                         name={name}
                         errors={errors}
-                        render={({message}) => (
+                        render={({ message }) => (
                             <p className="text-red-600 text-sm mt-1">{message}</p>
                         )}
                     />
                 </div>
-            )
+            );
+
         default:
             return null;
     }
