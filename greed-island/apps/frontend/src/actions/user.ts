@@ -23,3 +23,35 @@ export const onAuthenticateUser = async () => {
         return false;
     }
 }
+
+export const fetchUserSpace = async () => {
+    try {
+        const user = await currentUser();
+        if (!user) return [];
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/space/all`, {
+            headers : {
+                clerkId : user.id
+            }
+        })
+        return res.data.spaces;
+    } catch (e) {
+        console.log(e);
+        return []
+    }
+}
+
+export const fetchUserProfile = async () => {
+    try {
+        const user = await currentUser();
+        if (!user) return ;
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/metadata`, {
+            headers : {
+                clerkId : user.id
+            }
+        })
+        return res.data.user;
+    } catch (e) {
+        console.log(e);
+        return ;
+    }
+}

@@ -53,13 +53,19 @@ spaceRouter.delete("/:spaceId", async (req, res) => {
 })
 
 spaceRouter.get("/all", async (req, res) => {
+    const clerkId = req.header("clerkId");
     try {
-        const spaces = await prisma.space.findMany({select : {id : true, name : true, height : true, width : true, thumbnail : true
-        }});
+
+        const spaces = await prisma.space.findMany({
+            where : {creator : {clerkId}},
+            select: {
+                id: true, name: true, height: true, width: true, thumbnail: true
+            }
+        });
         res.status(200).json({spaces});
     } catch (e) {
         console.log(e);
-        res.status(500).json({message : "Internal Server Error"})
+        res.status(500).json({message: "Internal Server Error"})
     }
 })
 

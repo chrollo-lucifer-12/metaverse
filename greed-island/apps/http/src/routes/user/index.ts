@@ -22,16 +22,16 @@ userRouter.post("/metadata", async  (req, res) => {
     }
 })
 
-userRouter.get("/metadata/bulk", async (req, res) => {
-    const ids = req.query.ids;
+userRouter.get("/metadata", async (req, res) => {
+    const clerkId = req.header("clerkId");
 
     try {
-        let parseIds = JSON.parse(ids as string);
-        const users = await prisma.user.findMany({
-            where : {id : {in : parseIds}},
-            select : {id : true, imageUrl : true}
+        const user = await prisma.user.findUnique({
+            where : {
+                clerkId
+            }
         })
-        res.status(200).json({users});
+        res.status(200).json({user});
     } catch (e) {
         console.log(e);
         res.status(500).json({message : "Internal Server Error"})
