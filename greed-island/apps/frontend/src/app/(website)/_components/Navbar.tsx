@@ -8,7 +8,6 @@ const Navbar = ({isLoggedIn} : {isLoggedIn : boolean}) => {
         <div className={"flex items-center justify-between ml-4 mr-4"}>
             <Link href={"/"} className={"flex items-center space-x-2"}>
                 <div className={"relative w-10 h-10"}>
-
                     <div
                         className={"absolute inset-0 bg-gradient-to-r from-pink-500 to-cyan-500 rounded-lg rotate-45 transform-gpu"}>
                     </div>
