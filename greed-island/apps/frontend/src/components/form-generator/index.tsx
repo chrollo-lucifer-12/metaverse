@@ -2,11 +2,12 @@ import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ErrorMessage } from "@hookform/error-message";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 interface FormGeneratorProps {
     type?: "text" | "email" | "password" | "number" | "file" | "checkbox";
     inputType: "select" | "input" | "textarea";
-    options?: { value: string; label: string; id: string }[];
+    options?: any[]
     label?: string;
     placeholder?: string;
     register: UseFormRegister<any>;
@@ -63,7 +64,7 @@ const FormGenerator = ({
                         <ErrorMessage
                             name={name}
                             errors={errors}
-                            render={({ message }) => (
+                            render={({message}) => (
                                 <p className="text-red-600 text-sm ml-2">{message}</p>
                             )}
                         />
@@ -71,7 +72,6 @@ const FormGenerator = ({
                 );
             }
 
-            // Regular input types
             return (
                 <div className="mt-2 text-white flex flex-col">
                     <Label htmlFor={name} className="block mb-1">
@@ -90,14 +90,14 @@ const FormGenerator = ({
                         "
                         type={type}
                         placeholder={placeholder}
-                        {...register(name, type === "file" ? { required: true } : {})}
-                        style={{ borderRadius: "0.4rem" }}
+                        {...register(name, type === "file" ? {required: true} : {})}
+                        style={{borderRadius: "0.4rem"}}
                         onChange={(e) => {
                             if (type === "file") {
                                 const files = (e.target as HTMLInputElement).files;
                                 if (files) {
                                     register(name).onChange({
-                                        target: { name, value: files },
+                                        target: {name, value: files},
                                     });
                                 }
                             }
@@ -106,13 +106,51 @@ const FormGenerator = ({
                     <ErrorMessage
                         name={name}
                         errors={errors}
-                        render={({ message }) => (
+                        render={({message}) => (
                             <p className="text-red-600 text-sm mt-1">{message}</p>
                         )}
                     />
                 </div>
             );
-
+        case "select":
+            return (
+                <div className="mt-2 text-white flex flex-col">
+                    <Label htmlFor={name} className="block mb-1">
+                        {label}
+                    </Label>
+                    <Select
+                        onValueChange={(value) => {
+                            const selectedOption = options?.find(option => option.value === value);
+                            if (selectedOption) {
+                                register(name).onChange({
+                                    target: { name, value: selectedOption.id }
+                                });
+                            }
+                        }}
+                        defaultValue=""
+                    >
+                        <SelectTrigger
+                            className="w-full border-[#232325] bg-black/50 text-white focus:ring-2 focus:ring-blue-500"
+                            style={{borderRadius: "0.4rem"}}>
+                            <SelectValue placeholder={placeholder || "Select a map"}/>
+                        </SelectTrigger>
+                        <SelectContent >
+                            {
+                                options?.map((option) => (
+                                    <SelectItem  value={option.id}>{option.name}</SelectItem>
+                                ))
+                            }
+                        </SelectContent>
+                    </Select>
+                    <ErrorMessage
+                        name={name}
+                        errors={errors}
+                        render={({message}) => (
+                            <p className="text-red-600 text-sm mt-1">{message}</p>
+                        )}
+                    />
+                </div>
+            )
         default:
             return null;
     }

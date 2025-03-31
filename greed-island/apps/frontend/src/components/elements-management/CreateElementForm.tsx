@@ -15,6 +15,7 @@ const CreateElementForm = ({onClose} : {onClose : any}) => {
 
         }
     }
+
     return <form onSubmit={handleSubmit}>
         <FormGenerator inputType={"input"} placeholder={"Enter name for element"} register={register} name={"name"} errors={errors}/>
         <FormGenerator inputType={"input"} placeholder={"Enter width for element"} register={register} name={"width"} errors={errors}/>

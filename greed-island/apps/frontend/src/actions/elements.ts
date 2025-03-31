@@ -164,3 +164,28 @@ export const updateElements = async (mapId : string, elements : {id : string, el
         console.log(e);
     }
 }
+
+export const CreateSpace = async (name : string, dimensions : string, thumbnail : File, mapId : string) => {
+    try {
+        const user = await currentUser();
+        if (!user) throw new Error("User not authenticated");
+        const uniqueFileName = (file: File) => `uploads/${crypto.randomUUID()}_${file.name}`;
+        const { data: idleData, error: idleError } = await supabase.storage
+            .from("storage")
+            .upload(uniqueFileName(thumbnail), thumbnail);
+        if (idleError) throw idleError;
+        const idleImageUrl = supabase.storage.from("storage").getPublicUrl(idleData.path).data.publicUrl;
+        await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/space/space`, {
+            name,
+            dimensions,
+            thumbnail : idleImageUrl,
+            mapId
+        }, {
+            headers : {
+                clerkId : user.id
+            }
+        })
+    } catch (e) {
+        console.log(e);
+    }
+}

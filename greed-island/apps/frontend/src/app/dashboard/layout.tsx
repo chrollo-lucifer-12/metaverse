@@ -1,6 +1,6 @@
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
 import {fetchUserProfile, fetchUserSpace} from "@/actions/user";
-import {fetchAvatars} from "@/actions/elements";
+import {fetchAvatars, fetchMaps} from "@/actions/elements";
 import Sidebar from "@/components/sidebar";
 
 const Layout = async ({children} : {children : React.ReactNode}) => {
@@ -19,7 +19,11 @@ const Layout = async ({children} : {children : React.ReactNode}) => {
     await query.prefetchQuery({
         queryKey: ["avatars"],
         queryFn:  () => fetchAvatars()
+    })
 
+    await query.prefetchQuery({
+        queryKey: ["maps"],
+        queryFn: () => fetchMaps()
     })
 
     return <HydrationBoundary state={dehydrate(query)}>

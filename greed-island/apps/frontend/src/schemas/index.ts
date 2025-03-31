@@ -35,3 +35,10 @@ export const mapSchema = z.object({
     dimensions : z.string(),
     thumbnail : imageSchema
 })
+
+export const spaceSchema = z.object({
+    name : z.string().min(1, {message : "Name cannot be empty"}),
+    dimensions : z.string(),
+    thumbnail : imageSchema,
+    mapId : z.string()
+})
