@@ -12,4 +12,4 @@ export type SpaceProps = {
     name: string,
     id: string,
     thumbnail: string | null
-}[]
+}

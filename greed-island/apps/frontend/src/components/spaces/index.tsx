@@ -5,16 +5,24 @@ import {fetchUserSpace} from "@/actions/user";
 import TotalSpacesCard from "@/components/spaces/TotalSpacesCard";
 import {SpaceProps} from "@/types";
 import CreateSpace from "@/components/spaces/CreateSpace";
+import SpaceCard from "@/components/spaces/SpaceCard";
 
 const Spaces = () => {
 
-    const {data,isFetching} = useQueryData(["spaces"], () => fetchUserSpace())
+    const {data, isFetching} = useQueryData(["spaces"], () => fetchUserSpace())
 
-    const spaces = data as SpaceProps
+    const spaces = data as SpaceProps[]
 
-    return <div className={"mt-4 flex flex-col gap-4"}>
+    return <div className={"mt-4 flex flex-col gap-4 mb-4"}>
         <TotalSpacesCard numberOfSpaces={spaces.length}/>
         <CreateSpace/>
+        <div className={"flex gap-2"}>
+            {
+                spaces.map((space) => (
+                    <SpaceCard key={space.id} space={space}/>
+                ))
+            }
+        </div>
     </div>
 }
 
