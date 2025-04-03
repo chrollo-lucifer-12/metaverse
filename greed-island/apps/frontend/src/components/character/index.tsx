@@ -19,7 +19,22 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson 
         const handleMove = (e: KeyboardEvent) => {
             if (e.key === "W" || e.key === "w") {
                 setIsRunning(true);
-                setPosition(prevState => ({ x: prevState.x + 1, y: prevState.y }));
+
+                setPosition(prevState => ({ x: prevState.x, y: prevState.y-1 }));
+            }
+            if (e.key === "s" || e.key==="S") {
+                setIsRunning(true);
+
+                setPosition(prevState => ({ x: prevState.x, y: prevState.y+1 }));
+            }
+            if (e.key === "d" || e.key==="D") {
+
+                setIsRunning(true);
+                setPosition(prevState => ({ x: prevState.x+1, y: prevState.y }));
+            }
+            if (e.key === "a" || e.key==="A") {
+                setIsRunning(true);
+                setPosition(prevState => ({ x: prevState.x-1, y: prevState.y }));
             }
         };
 
@@ -69,15 +84,16 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson 
         width: `${frame.sourceSize.w}px`,
         height: `${frame.sourceSize.h}px`,
         backgroundImage: `url(${isRunning ? runningSpritesheet : idleSpritesheet})`,
-        backgroundPosition: `-${isRunning ? frame.frame.x/2 : frame.frame.x}px -${isRunning ? frame.frame.y/2 : frame.frame.y}px`,
-        backgroundSize: `${frameData.meta.size.w}px ${frameData.meta.size.h}px`,
-        imageRendering: 'pixelated' as 'pixelated'
+         backgroundPosition: `-${frame.frame.x}px -${frame.frame.y}px`,
+         backgroundSize: `${frameData.meta.size.w}px ${frameData.meta.size.h}px`,
+        imageRendering: 'pixelated' as 'pixelated',
+        left: `${position.x}px`, top: `${position.y}px`, zIndex: 2
     };
 
     return (
-        <div style={{ left: `${position.x}px`, top: `${position.y}px`, zIndex: 2 }} className="absolute">
-            <div ref={characterRef} style={style}></div>
-        </div>
+
+            <div ref={characterRef} style={style} className="absolute"></div>
+
     );
 };
 
