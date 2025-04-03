@@ -29,6 +29,13 @@ userRouter.get("/metadata", async (req, res) => {
         const user = await prisma.user.findUnique({
             where : {
                 clerkId
+            },
+            select : {
+                id : true,
+                role : true,
+                username : true,
+                email : true,
+                Avatar : true
             }
         })
         res.status(200).json({user});

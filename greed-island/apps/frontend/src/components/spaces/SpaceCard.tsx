@@ -9,7 +9,7 @@ const SpaceCard = ({space} : {space : SpaceProps}) => {
     const router= useRouter();
 
     return <div className={"w-[250px] flex flex-col bg-[#272729] rounded-md cursor-pointer hover:scale-105 transition duration-200"} onClick={() => {
-        router.push(`/dashboard/${space.id}`)
+        router.push(`/space/${space.id}`)
     }}>
         <Image src={space.thumbnail!} alt={"space card"} width={250} height={60}/>
         <div className={"flex flex-col gap-y-2 p-3"}>

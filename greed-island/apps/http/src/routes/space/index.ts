@@ -21,6 +21,15 @@ spaceRouter.post("/space", async (req, res) => {
                 width,
                 height
             }})
+        const mapElements = await prisma.mapElements.findMany({where : {mapId}});
+        await prisma.spaceElements.createMany({
+            data: mapElements.map((mapElement) => ({
+                spaceId: createSpace.id,
+                x: mapElement.x!,
+                y: mapElement.y!,
+                elementId: mapElement.elementId,
+            })),
+        });
         res.status(200).json({message : "Space created"})
     } catch (e) {
         console.log(e);
@@ -70,9 +79,11 @@ spaceRouter.get("/all", async (req, res) => {
 })
 
 spaceRouter.get("/:spaceId", async (req, res) => {
-    const { spaceId } = req.params;
+    const spaceId = req.params.spaceId;
     try {
-        const space = await prisma.space.findUnique({where : {id : spaceId}, select : {height : true, width : true, spaceElements : true}});
+        const space = await prisma.spaceElements.findMany({where : {spaceId}, select : {Elements : true, x : true, y : true, id : true}});
+
+        console.log(space);
         res.status(200).json({space});
     } catch (e) {
         console.log(e);

@@ -189,3 +189,13 @@ export const CreateSpace = async (name : string, dimensions : string, thumbnail 
         console.log(e);
     }
 }
+
+export const fetchSpaceElements = async (spaceId : string) => {
+    try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/space/${spaceId}`);
+        return res.data.space
+    } catch (e) {
+        console.log(e);
+        return [];
+    }
+}
