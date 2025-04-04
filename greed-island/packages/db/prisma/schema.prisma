@@ -28,6 +28,7 @@ model User {
   role     ROLE
   spaces   Space[]
   Avatar   Avatar  @relation(fields: [avatarId], references: [id])
+  Member   Member?
 }
 
 model Space {
@@ -41,6 +42,15 @@ model Space {
   spaceElements spaceElements[]
   mapId         String
   map           Map             @relation(fields: [mapId], references: [id])
+  Member        Member[]
+}
+
+model Member {
+  id      String @id @unique @default(uuid())
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String @unique
+  space   Space  @relation(fields: [spaceId], references: [id])
+  spaceId String @unique
 }
 
 model spaceElements {

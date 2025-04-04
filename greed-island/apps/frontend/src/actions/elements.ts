@@ -199,3 +199,18 @@ export const fetchSpaceElements = async (spaceId : string) => {
         return [];
     }
 }
+
+export const verifySpace = async (spaceId : string) => {
+    try { const user = await currentUser();
+        if (!user) throw new Error("User not authenticated");
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/verify/${spaceId}`, {
+            headers : {
+                clerkId : user!.id
+            }
+        });
+        return res.status===200;
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
+}

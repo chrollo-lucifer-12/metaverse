@@ -122,4 +122,29 @@ spaceRouter.delete("/element", async (req, res) => {
     }
 })
 
+spaceRouter.post("/verify/:spaceId", async (req, res) => {
+
+    const {spaceId} = req.params
+    const clerkId = req.header("clerkId")
+    try {
+        const findSpace = await prisma.space.findUnique({where : {id : spaceId}});
+        const findUser = await prisma.user.findUnique({where : {clerkId}});
+        if (!findSpace || !findUser) {
+            res.status(400).json({message : "The space doesn't exist"})
+            return;
+        }
+        const findMember = await prisma.member.findUnique({where : {spaceId,userId : findUser.id}});
+        if (findMember || findSpace.creatorId === findUser.id) {
+            res.status(200).json({message : "space joined"})
+            return;
+        }
+        await prisma.member.create({data : {spaceId,userId : findUser.id}});
+        res.status(200).json({message : "space joined"})
+        return;
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message : "Internal Server Error"})
+    }
+})
+
 export default spaceRouter
