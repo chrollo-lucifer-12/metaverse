@@ -45,4 +45,24 @@ userRouter.get("/metadata", async (req, res) => {
     }
 })
 
+userRouter.put("/metadata", async (req,res) => {
+    const clerkId = req.header("clerkId");
+    const {username, email, avatarId} = req.body
+    try {
+        if (username) {
+            await prisma.user.update({where : {clerkId}, data : {username}});
+        }
+        if (email) {
+            await prisma.user.update({where : {clerkId}, data : {email}});
+        }
+        if (avatarId ){
+            await prisma.user.update({where : {clerkId}, data : {avatarId}});
+        }
+        res.status(200).json({message : "user updated"});
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message : "Internal Server Error"})
+    }
+})
+
 export default userRouter

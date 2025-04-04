@@ -46,4 +46,5 @@ export const spaceSchema = z.object({
 export const userSchema = z.object({
     username : z.string(),
     email : z.string(),
+    avatarId : z.string()
 })

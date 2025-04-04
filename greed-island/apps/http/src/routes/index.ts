@@ -16,7 +16,7 @@ router.use("/admin", adminRouter)
 
 router.get("/avatars", async  (req, res) => {
     try {
-        const avatars = await prisma.avatar.findMany();
+        const avatars = await prisma.avatar.findMany({select : {id : true,name : true, imageUrl : true}});
         res.status(200).json({avatars});
     } catch (e) {
         console.log(e);

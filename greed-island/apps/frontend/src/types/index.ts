@@ -27,3 +27,5 @@ export type MovePayload = {
     x : number,
     y : number
 }
+
+export type AvatarProps = {  id : string,    imageUrl: string  ,   name: string }

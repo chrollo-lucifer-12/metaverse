@@ -2,12 +2,12 @@
 
 
 import useZodForm from "@/hooks/useZodForm";
-import {spaceSchema, userSchema} from "@/schemas";
+import { userSchema} from "@/schemas";
 import {useMutationData} from "@/hooks/useMutationData";
-import {CreateSpace} from "@/actions/elements";
+import {updateProfile} from "@/actions/user";
 
 export const useUpdateProfile = () => {
-    const {mutate,isPending} = useMutationData(["update-profile"], (data) => CreateSpace(data.name, data.dimensions, data.thumbnail, data.mapId), "spaces");
+    const {mutate,isPending} = useMutationData(["update-profile"], (data) => updateProfile(data.username, data.email, data.avatarId), "user-metadata");
 
     const {errors, onFormSubmit, register, watch, reset, control} = useZodForm(userSchema, mutate);
 

@@ -55,3 +55,19 @@ export const fetchUserProfile = async () => {
         return ;
     }
 }
+
+export const updateProfile = async (username : string | null, email : string | null, avatarId : string | null) => {
+    try {
+        const user = await currentUser();
+        if (!user) return ;
+        await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/metadata`, {
+            username,email,avatarId
+        }, {
+            headers : {
+                clerkId : user.id
+            }
+        });
+    } catch (e) {
+        console.log(e);
+    }
+}
