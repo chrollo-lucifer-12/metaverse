@@ -23,6 +23,7 @@ export class RoomManager {
             this.rooms.set(spaceId, [user]);
             return;
         }
+        console.log("user added");
         this.rooms.set(spaceId, [...(this.rooms.get(spaceId) ?? []), user])
     }
 

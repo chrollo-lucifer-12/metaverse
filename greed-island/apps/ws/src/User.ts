@@ -1,6 +1,5 @@
 import {WebSocket} from "ws"
 import {RoomManager} from "./RoomManager";
-import {OutgoingMessage} from "./types";
 import {prisma} from "@repo/db/client";
 
 function generateRandomString(length : number) {
@@ -31,34 +30,30 @@ export class User {
             const parsedData = JSON.parse(data.toString());
             switch (parsedData.type) {
                 case "join":
+                    console.log("join request");
                     const spaceId = parsedData.payload.spaceId, clerkId = parsedData.payload.clerkId;
                     const user = await prisma.user.findUnique({where: {clerkId}});
-                    // console.log(user);
                     if (!user) {
                         this.ws.close();
+                        console.log("user not found")
                         return;
                     }
                     this.userId = user.id
                     const space = await prisma.space.findUnique({where: {id: spaceId}})
                     if (!space) {
                         this.ws.close();
+                        console.log("space not found")
                         return;
                     }
-                    //  console.log(space);
                     this.spaceId = spaceId
                     RoomManager.getInstance().addUser(spaceId, this)
                     this.x = Math.max(0, Math.min(space.width - 1, Math.floor(Math.random() * space.width)));
                     this.y = Math.max(0, Math.min(space.height - 1, Math.floor(Math.random() * space.height)));
-                    console.log(this.x);
-                    console.log(this.y);
                     this.send({
                         type: "space-joined",
                         payload: {
-                            // todo
-                            spawn: {
-                                x: this.x,
-                                y: this.y
-                            },
+                            x: this.x,
+                            y: this.y,
                             users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) => ({id: u.id})) ?? []
                         }
                     })
@@ -113,8 +108,7 @@ export class User {
         RoomManager.getInstance().removeUser(this,this.spaceId!)
     }
 
-    send(payload : OutgoingMessage) {
+    send(payload : any) {
         this.ws.send(JSON.stringify(payload));
     }
-
 }

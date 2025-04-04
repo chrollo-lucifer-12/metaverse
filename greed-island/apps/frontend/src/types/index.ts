@@ -17,3 +17,13 @@ export type SpaceProps = {
 export type SpaceElementProps =  {     id: string ,    x: number  ,   y: number,     Elements: {         id: string  ,       imageUrl: string ,        name: string ,        width: number    ,     height: number  ,       jsonData: JSON    ,     static: boolean     } }[]
 
 export type UserMetadata = {     id: string   ,  username: string   ,  email: string   ,  role: string   ,  Avatar: {         id: string   ,      imageUrl: string  ,       name: string   ,      imageUrl2: string        , idleJson: JSON    ,     runningJson: JSON     } }
+
+export type JoinRoomPayload = {
+    spaceId : string,
+    clerkId : string,
+}
+
+export type MovePayload = {
+    x : number,
+    y : number
+}

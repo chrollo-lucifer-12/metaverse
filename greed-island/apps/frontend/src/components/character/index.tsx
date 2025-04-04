@@ -5,36 +5,62 @@ interface EntityAnimationProps {
     idleJson: any;
     runningSpritesheet: string;
     runningJson: any;
+    socket : WebSocket
+    isLoading : boolean
 }
 
-const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson }: EntityAnimationProps) => {
+const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading }: EntityAnimationProps) => {
     const [currentFrame, setCurrentFrame] = useState(0);
     const [loading, setLoading] = useState(true);
     const [frameData, setFrameData] = useState<any>(null);
     const [isRunning, setIsRunning] = useState(false);
     const characterRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState({x : 50, y: 50})
+    const [position, setPosition] = useState({x : 0, y: 0})
 
     useEffect(() => {
+
+        if (!socket || isLoading || socket.readyState !== WebSocket.OPEN) return ;
+
         const handleMove = (e: KeyboardEvent) => {
             if (e.key === "W" || e.key === "w") {
                 setIsRunning(true);
-
-                setPosition(prevState => ({ x: prevState.x, y: prevState.y-1 }));
+                socket.send(JSON.stringify({
+                    type : "move",
+                    payload : {
+                        x : position.x,
+                        y : position.y - 1
+                    }
+                }))
             }
             if (e.key === "s" || e.key==="S") {
                 setIsRunning(true);
-
-                setPosition(prevState => ({ x: prevState.x, y: prevState.y+1 }));
+                socket.send(JSON.stringify({
+                    type : "move",
+                    payload : {
+                        x : position.x,
+                        y : position.y + 1
+                    }
+                }))
             }
             if (e.key === "d" || e.key==="D") {
-
                 setIsRunning(true);
-                setPosition(prevState => ({ x: prevState.x+1, y: prevState.y }));
+                socket.send(JSON.stringify({
+                    type : "move",
+                    payload : {
+                        x : position.x + 1,
+                        y : position.y
+                    }
+                }))
             }
             if (e.key === "a" || e.key==="A") {
                 setIsRunning(true);
-                setPosition(prevState => ({ x: prevState.x-1, y: prevState.y }));
+                socket.send(JSON.stringify({
+                    type : "move",
+                    payload : {
+                        x : position.x - 1,
+                        y : position.y
+                    }
+                }))
             }
         };
 
@@ -42,15 +68,28 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson 
             setIsRunning(false);
         }
 
+        const messageHandler = (e) => {
+            try {
+                const parsedData = JSON.parse(e.data);
+                console.log(parsedData);
+                if (parsedData.type === "space-joined") {
+                    setPosition({x  : parsedData.payload.x, y : parsedData.payload.y})
+                }
+            } catch (err) {
+                console.error("Failed to parse message:", err, e.data);
+            }
+        };
+
         window.addEventListener("keydown", handleMove);
         window.addEventListener("keyup", handleStop);
+        socket.addEventListener("message", messageHandler);
 
         return () => {
             window.removeEventListener("keydown", handleMove);
             window.removeEventListener("keyup", handleStop);
+            socket.removeEventListener("message", messageHandler);
         };
-    }, []);
-
+    }, [socket, isLoading]);
 
     useEffect(() => {
         setLoading(true);
