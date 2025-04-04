@@ -7,15 +7,23 @@ interface EntityAnimationProps {
     runningJson: any;
     socket : WebSocket
     isLoading : boolean
+    initialX : number | null
+    initialY : number | null
 }
 
-const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading }: EntityAnimationProps) => {
+const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading, initialX, initialY }: EntityAnimationProps) => {
     const [currentFrame, setCurrentFrame] = useState(0);
     const [loading, setLoading] = useState(true);
     const [frameData, setFrameData] = useState<any>(null);
     const [isRunning, setIsRunning] = useState(false);
     const characterRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState({x : 0, y: 0})
+    const [position, setPosition] = useState({x : initialX, y: initialY})
+
+    useEffect(() => {
+        if (initialX != null && initialY != null) {
+            setPosition({ x: initialX, y: initialY });
+        }
+    }, [initialX, initialY]);
 
     useEffect(() => {
 
@@ -28,9 +36,10 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                     type : "move",
                     payload : {
                         x : position.x,
-                        y : position.y - 1
+                        y : position.y! - 1
                     }
                 }))
+                setPosition(prevState => ({x : prevState.x, y : prevState.y! - 1}));
             }
             if (e.key === "s" || e.key==="S") {
                 setIsRunning(true);
@@ -41,26 +50,29 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                         y : position.y + 1
                     }
                 }))
+                setPosition(prevState => ({x : prevState.x, y : prevState.y! + 1}));
             }
             if (e.key === "d" || e.key==="D") {
                 setIsRunning(true);
                 socket.send(JSON.stringify({
                     type : "move",
                     payload : {
-                        x : position.x + 1,
+                        x : position.x! + 1,
                         y : position.y
                     }
                 }))
+                setPosition(prevState => ({x : prevState.x! + 1, y : prevState.y}));
             }
             if (e.key === "a" || e.key==="A") {
                 setIsRunning(true);
                 socket.send(JSON.stringify({
                     type : "move",
                     payload : {
-                        x : position.x - 1,
+                        x : position.x! - 1,
                         y : position.y
                     }
                 }))
+                setPosition(prevState => ({x : prevState.x! - 1, y : prevState.y }));
             }
         };
 
@@ -71,9 +83,12 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
         const messageHandler = (e) => {
             try {
                 const parsedData = JSON.parse(e.data);
-                console.log(parsedData);
+           //     console.log(parsedData);
                 if (parsedData.type === "space-joined") {
                     setPosition({x  : parsedData.payload.x, y : parsedData.payload.y})
+                }
+                if (parsedData.type === "move-rejected") {
+                    setPosition({x : parsedData.payload.x, y : parsedData.payload.y});
                 }
             } catch (err) {
                 console.error("Failed to parse message:", err, e.data);
@@ -89,7 +104,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             window.removeEventListener("keyup", handleStop);
             socket.removeEventListener("message", messageHandler);
         };
-    }, [socket, isLoading]);
+    }, [socket, isLoading, position]);
 
     useEffect(() => {
         setLoading(true);
@@ -128,11 +143,8 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
         imageRendering: 'pixelated' as 'pixelated',
         left: `${position.x}px`, top: `${position.y}px`, zIndex: 2
     };
-
     return (
-
             <div ref={characterRef} style={style} className="absolute"></div>
-
     );
 };
 

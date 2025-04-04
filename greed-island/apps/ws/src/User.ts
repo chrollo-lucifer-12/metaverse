@@ -25,6 +25,26 @@ export class User {
         this.initHandlers();
     }
 
+    async isValidPosition (x : number, y : number) {
+        const elements = await prisma.spaceElements.findMany({
+            where: {
+                spaceId: this.spaceId,
+            },
+            select : {
+                Elements : true,
+                x : true, y : true
+            }
+        });
+
+        const isOverlapping = elements.some(el => {
+            const withinX = x === el.x;
+            const withinY = y === el.y;
+            return withinX && withinY && el.Elements.static;
+        });
+
+        return !isOverlapping;
+    }
+
     initHandlers () {
         this.ws.on("message", async (data) => {
             const parsedData = JSON.parse(data.toString());
@@ -47,8 +67,11 @@ export class User {
                     }
                     this.spaceId = spaceId
                     RoomManager.getInstance().addUser(spaceId, this)
-                    this.x = Math.max(0, Math.min(space.width - 1, Math.floor(Math.random() * space.width)));
-                    this.y = Math.max(0, Math.min(space.height - 1, Math.floor(Math.random() * space.height)));
+                    do {
+                        this.x = Math.max(0, Math.min(space.width - 1, Math.floor(Math.random() * space.width)));
+                        this.y = Math.max(0, Math.min(space.height - 1, Math.floor(Math.random() * space.height)));
+                    } while (!(await this.isValidPosition(this.x, this.y)));
+
                     this.send({
                         type: "space-joined",
                         payload: {
@@ -68,10 +91,13 @@ export class User {
                     break
                 case "move":
                     const moveX = parsedData.payload.x, moveY = parsedData.payload.y
+                    console.log(moveX, this.x)
+                    console.log(moveY,this.y);
                     let dx = this.x! - moveX;
                     let dy = this.y! - moveY;
                     let d = dx * dx + dy * dy;
-                    if (d === 1 || d === 2) {
+                    //const canMove = await this.isValidPosition(moveX,moveY);
+                    if ((d === 1 || d === 2)) {
                         this.x = moveX, this.y = moveY
                         RoomManager.getInstance().broadcast({
                             type: "move",
@@ -83,6 +109,8 @@ export class User {
                         }, this, this.spaceId!)
                         return;
                     }
+
+                    console.log("conflict found")
 
                     this.send({
                         type: "move-rejected",
