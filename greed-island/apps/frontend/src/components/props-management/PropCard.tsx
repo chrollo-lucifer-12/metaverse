@@ -15,7 +15,7 @@ const PropCard = ({imageUrl, name, imageUrl2, idleJson, runningJson} : PropCardP
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const cardRef = useRef<HTMLDivElement>(null);
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e : any) => {
         if (cardRef.current) {
             const rect = cardRef.current.getBoundingClientRect();
             const x = e.clientX - rect.left;
