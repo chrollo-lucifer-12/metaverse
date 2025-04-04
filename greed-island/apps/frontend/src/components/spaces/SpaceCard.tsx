@@ -19,9 +19,6 @@ const SpaceCard = ({space} : {space : SpaceProps}) => {
                 <CopyId spaceId={space.id}/>
             </div>
         </div>
-        <div className={"flex items-center gap-x-3"}>
-
-        </div>
     </div>
 }
 

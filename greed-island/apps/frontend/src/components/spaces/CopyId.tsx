@@ -6,7 +6,7 @@ import {Button} from "@/components/ui/button";
 const CopyId = ({spaceId} : {spaceId : string}) => {
     return <Button onClick={() => {
         navigator.clipboard.writeText(spaceId);
-    }} className={"cursor-pointer"}>
+    }} className={"cursor-pointer bg-blue-300"}>
         <Link2></Link2>
     </Button>
 }
