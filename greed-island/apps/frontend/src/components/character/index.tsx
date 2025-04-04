@@ -47,7 +47,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                     type : "move",
                     payload : {
                         x : position.x,
-                        y : position.y + 1
+                        y : position.y! + 1
                     }
                 }))
                 setPosition(prevState => ({x : prevState.x, y : prevState.y! + 1}));
@@ -80,7 +80,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             setIsRunning(false);
         }
 
-        const messageHandler = (e) => {
+        const messageHandler = (e : any) => {
             try {
                 const parsedData = JSON.parse(e.data);
            //     console.log(parsedData);

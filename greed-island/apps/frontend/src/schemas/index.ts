@@ -42,3 +42,8 @@ export const spaceSchema = z.object({
     thumbnail : imageSchema,
     mapId : z.string()
 })
+
+export const userSchema = z.object({
+    username : z.string(),
+    email : z.string(),
+})

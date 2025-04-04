@@ -1,3 +1,5 @@
+"use client"
+
 import {
     Sidebar,
     SidebarContent,
@@ -8,8 +10,12 @@ import {
 } from "@/components/ui/sidebar";
 import {ComputerIcon, Sparkles, UserIcon} from "lucide-react";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 
 const AppSidebar = () => {
+
+    const router = useRouter()
+
     return <Sidebar collapsible={"icon"} className={"gap-4"}>
         <SidebarHeader className="bg-[#18181a] flex items-center p-2">
             <div className={"flex items-center space-x-2"}>
@@ -30,11 +36,15 @@ const AppSidebar = () => {
         <SidebarContent className="bg-[#18181a] text-white">
             <SidebarGroup>
                 <SidebarMenu>
-                    <SidebarMenuButton className={"transition duration-200 hover:bg-[#272729] hover:text-white cursor-pointer"}>
+                    <SidebarMenuButton onClick={() => {
+                        router.push("/dashboard")
+                    }} className={"transition duration-200 hover:bg-[#272729] hover:text-white cursor-pointer"}>
                         <ComputerIcon/>
                         <p>Spaces</p>
                     </SidebarMenuButton>
-                    <SidebarMenuButton className={"transition duration-200 hover:bg-[#272729] hover:text-white cursor-pointer"}>
+                    <SidebarMenuButton onClick={() => {
+                        router.push("/dashboard/profile")
+                    }} className={"transition duration-200 hover:bg-[#272729] hover:text-white cursor-pointer"}>
                         <UserIcon/>
                         <p>Profile</p>
                     </SidebarMenuButton>
