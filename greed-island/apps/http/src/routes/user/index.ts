@@ -65,4 +65,34 @@ userRouter.put("/metadata", async (req,res) => {
     }
 })
 
+userRouter.post("/avatars/bulk", async (req, res) => {
+    const {ids} = req.body;
+
+    if (!ids || !ids.length) {
+        res.status(400).json({ error: "No IDs provided" });
+        return;
+    }
+
+    try {
+        const avatars = await prisma.user.findMany({
+            where: {
+                id: {
+                    in: ids,
+                },
+            },
+            select : {
+                id : true,
+                Avatar : true
+            }
+        });
+        res.status(200).json({ avatars });
+        return;
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ message: "Internal Server Error" });
+        return;
+    }
+});
+
+
 export default userRouter

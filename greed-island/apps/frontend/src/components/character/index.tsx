@@ -9,10 +9,11 @@ interface EntityAnimationProps {
     isLoading : boolean
     initialX : number | null
     initialY : number | null
-    initialUsers : {id: string,x: number | undefined,y: number | undefined }[]
+    initialUsers : {id: string,x: number | undefined,y: number | undefined }[] | null
+    initialAvatars : any[] | null
 }
 
-const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading, initialX, initialY , initialUsers}: EntityAnimationProps) => {
+const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading, initialX, initialY , initialUsers, initialAvatars}: EntityAnimationProps) => {
     const [currentFrame, setCurrentFrame] = useState(0);
     const [loading, setLoading] = useState(true);
     const [frameData, setFrameData] = useState<any>(null);
@@ -20,11 +21,13 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const characterRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({x : initialX, y: initialY})
     const [usersInRoom, setUsersInRoom] = useState<{id: string,x: number | undefined,y: number | undefined }[]>([]);
+    const [userAvatars, setUserAvatars] = useState<any>([]);
 
     useEffect(() => {
         if (initialX != null && initialY != null && initialUsers) {
             setPosition({ x: initialX, y: initialY });
             setUsersInRoom(initialUsers);
+            setUserAvatars(initialAvatars);
         }
     }, [initialX, initialY]);
 
@@ -126,14 +129,14 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             window.removeEventListener("keyup", handleStop);
             socket.removeEventListener("message", messageHandler);
         };
-    }, [socket, isLoading, position]);
+    }, [socket, isLoading, position, initialAvatars]);
 
     useEffect(() => {
         setLoading(true);
         setFrameData(isRunning ? runningJson : idleJson);
         setCurrentFrame(0);
         setLoading(false);
-    }, [idleJson, runningJson, isRunning]);
+    }, [idleJson, runningJson, isRunning,]);
 
     useEffect(() => {
         if (loading) return;

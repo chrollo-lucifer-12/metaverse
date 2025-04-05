@@ -71,3 +71,15 @@ export const updateProfile = async (username : string | null, email : string | n
         console.log(e);
     }
 }
+
+export const fetchAvatars = async (userIds : {id : string}[]) => {
+    try {
+        const res =  await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/avatars/bulk`, {
+            ids : userIds
+        })
+        return res.data.avatars
+    } catch (e) {
+        console.log(e);
+        return[];
+    }
+}
