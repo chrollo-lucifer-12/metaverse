@@ -7,6 +7,8 @@ export const useSocket = (spaceId: string, clerkId: string | null | undefined) =
     const [isLoading, setIsLoading] = useState(true);
     const [initialX, setInitialX] = useState<number | null>(null);
     const [initialY, setInitialY] = useState<number | null>(null);
+    const [initialUsers, setInitialUsers] = useState<{id: string,x: number | undefined,y: number | undefined }[] | null
+    >(null)
 
     useEffect(() => {
         const ws = new WebSocket("ws://localhost:8080");
@@ -31,6 +33,7 @@ export const useSocket = (spaceId: string, clerkId: string | null | undefined) =
             if (parsedData.type === "space-joined") {
                 setInitialX(parsedData.payload.x);
                 setInitialY(parsedData.payload.y);
+                setInitialUsers(parsedData.payload.users)
             }
         };
 
@@ -44,11 +47,10 @@ export const useSocket = (spaceId: string, clerkId: string | null | undefined) =
 
         setSocket(ws);
 
-        // Cleanup socket on unmount
         return () => {
             ws.close();
         };
     }, [spaceId, clerkId]);
 
-    return { socket, isLoading, initialX, initialY };
+    return { socket, isLoading, initialX, initialY, initialUsers };
 }

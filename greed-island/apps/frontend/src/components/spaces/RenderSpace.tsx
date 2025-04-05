@@ -13,7 +13,7 @@ const RenderSpace = ({spaceId} : {spaceId : string}) => {
 
 
     const {userId} = useAuth()
-    const {socket, isLoading, initialY, initialX} = useSocket(spaceId, userId);
+    const {socket, isLoading, initialY, initialX, initialUsers} = useSocket(spaceId, userId);
 
     const {data : spaceElementsData, isFetching : spaceIsFetching} = useQueryData(["space-elements"], () => fetchSpaceElements(spaceId))
 
@@ -55,7 +55,7 @@ const RenderSpace = ({spaceId} : {spaceId : string}) => {
                 </div>
             ))}
 
-            <Character idleSpritesheet={userMetadata.Avatar.imageUrl} idleJson={userMetadata.Avatar.idleJson} runningSpritesheet={userMetadata.Avatar.imageUrl2} runningJson={userMetadata.Avatar.runningJson} socket = {socket} isLoading = {isLoading} initialX={initialX} initialY={initialY} />
+            <Character idleSpritesheet={userMetadata.Avatar.imageUrl} idleJson={userMetadata.Avatar.idleJson} runningSpritesheet={userMetadata.Avatar.imageUrl2} runningJson={userMetadata.Avatar.runningJson} socket = {socket} isLoading = {isLoading} initialX={initialX} initialY={initialY} initialUsers={initialUsers} />
         </div>
     );
 }

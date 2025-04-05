@@ -9,19 +9,22 @@ interface EntityAnimationProps {
     isLoading : boolean
     initialX : number | null
     initialY : number | null
+    initialUsers : {id: string,x: number | undefined,y: number | undefined }[]
 }
 
-const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading, initialX, initialY }: EntityAnimationProps) => {
+const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading, initialX, initialY , initialUsers}: EntityAnimationProps) => {
     const [currentFrame, setCurrentFrame] = useState(0);
     const [loading, setLoading] = useState(true);
     const [frameData, setFrameData] = useState<any>(null);
     const [isRunning, setIsRunning] = useState(false);
     const characterRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({x : initialX, y: initialY})
+    const [usersInRoom, setUsersInRoom] = useState<{id: string,x: number | undefined,y: number | undefined }[]>([]);
 
     useEffect(() => {
-        if (initialX != null && initialY != null) {
+        if (initialX != null && initialY != null && initialUsers) {
             setPosition({ x: initialX, y: initialY });
+            setUsersInRoom(initialUsers);
         }
     }, [initialX, initialY]);
 
@@ -89,6 +92,25 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                 }
                 if (parsedData.type === "move-rejected") {
                     setPosition({x : parsedData.payload.x, y : parsedData.payload.y});
+                }
+                if (parsedData.type === "user-joined") {
+                    const newUser = parsedData.payload;
+                    setUsersInRoom(prevState => [...prevState, newUser]);
+                }
+                if (parsedData.type === "user-left") {
+                    const userToRemove = parsedData.payload.userId
+                    setUsersInRoom(prevState => prevState.filter(user => user.id !== userToRemove));
+                }
+                if (parsedData.type === "user-move") {
+                    const userMoved = parsedData.payload;
+                    setUsersInRoom(prevState =>
+                        prevState.map(user =>
+                            user.id === userMoved.id
+                                ? { ...user, x: userMoved.x, y: userMoved.y }
+                                : user
+                        )
+                    );
+
                 }
             } catch (err) {
                 console.error("Failed to parse message:", err, e.data);

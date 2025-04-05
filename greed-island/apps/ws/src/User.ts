@@ -77,7 +77,7 @@ export class User {
                         payload: {
                             x: this.x,
                             y: this.y,
-                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) => ({id: u.id})) ?? []
+                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) => ({id: u.id, x : u.x, y : u.y})) ?? []
                         }
                     })
                     RoomManager.getInstance().broadcast({
@@ -100,7 +100,7 @@ export class User {
                     if ((d === 1 || d === 2)) {
                         this.x = moveX, this.y = moveY
                         RoomManager.getInstance().broadcast({
-                            type: "move",
+                            type: "user-move",
                             payload: {
                                 userId: this.userId,
                                 x: this.x,
