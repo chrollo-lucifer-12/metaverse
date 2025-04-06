@@ -9,11 +9,11 @@ const Layout = async ({children, params} : {children : React.ReactNode, params :
 
     const {spaceId} = await params;
 
-    const isVerified = await verifySpace(spaceId);
-
-    if (!isVerified) {
-        return <NotFound/>
-    }
+    // const isVerified = await verifySpace(spaceId);
+    //
+    // if (!isVerified) {
+    //     return <NotFound/>
+    // }
 
     const query = new QueryClient();
 

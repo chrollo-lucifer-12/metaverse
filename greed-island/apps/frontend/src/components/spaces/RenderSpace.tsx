@@ -54,7 +54,7 @@ const RenderSpace = ({spaceId} : {spaceId : string}) => {
 
                 </div>
             ))}
-            <Character idleSpritesheet={userMetadata.Avatar.imageUrl} idleJson={userMetadata.Avatar.idleJson} runningSpritesheet={userMetadata.Avatar.imageUrl2} runningJson={userMetadata.Avatar.runningJson} socket = {socket} isLoading = {isLoading} initialX={initialX} initialY={initialY} initialUsers={initialUsers} initialAvatars={avatarInfo} />
+            <Character idleSpritesheet={userMetadata.Avatar.imageUrl} idleJson={userMetadata.Avatar.idleJson} runningSpritesheet={userMetadata.Avatar.imageUrl2} runningJson={userMetadata.Avatar.runningJson} socket = {socket} isLoading = {isLoading} initialX={initialX} initialY={initialY} initialUsers={initialUsers} initialAvatars={avatarInfo!} />
         </div>
     );
 }

@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { fetchAvatars } from "@/actions/user";
+import {SingleAvatarProps} from "@/types";
 
 export const useSocket = (spaceId: string, clerkId: string | null | undefined) => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [initialX, setInitialX] = useState<number | null>(null);
     const [initialY, setInitialY] = useState<number | null>(null);
-    const [initialUsers, setInitialUsers] = useState<{ id: string; x: number; y: number }[] | null>(null);
-    const [avatarInfo, setAvatarInfo] = useState<any[] | null>(null);
+    const [initialUsers, setInitialUsers] = useState<{ id: string; username : string; x: number; y: number }[] | null>(null);
+    const [avatarInfo, setAvatarInfo] = useState<{id : string, Avatar : SingleAvatarProps}[] | null>(null);
 
     useEffect(() => {
         const ws = new WebSocket("ws://localhost:8080");
@@ -37,9 +38,9 @@ export const useSocket = (spaceId: string, clerkId: string | null | undefined) =
                 setInitialX(x);
                 setInitialY(y);
                 setInitialUsers(users);
-                const ids = users.map((user: any) => ({ id: user.id }));
-                const res = await fetchAvatars(ids);
-                setAvatarInfo(res);
+                    // const ids = users.map((user: any) => ({id: user.id}));
+                    // const res = await fetchAvatars(ids);
+                    // setAvatarInfo(res);
             }
         };
 
@@ -47,8 +48,8 @@ export const useSocket = (spaceId: string, clerkId: string | null | undefined) =
             console.log("disconnected");
         };
 
-        ws.onerror = () => {
-            console.error("WebSocket error");
+        ws.onerror = (error) => {
+            console.error(error);
         };
 
         setSocket(ws);

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import {fetchAvatars} from "@/actions/user";
+import {SingleAvatarProps} from "@/types";
 
 interface EntityAnimationProps {
     idleSpritesheet: string;
@@ -10,7 +12,7 @@ interface EntityAnimationProps {
     initialX : number | null
     initialY : number | null
     initialUsers : {id: string,x: number | undefined,y: number | undefined }[] | null
-    initialAvatars : any[] | null
+    initialAvatars : {id : string, Avatar : SingleAvatarProps}[]
 }
 
 const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading, initialX, initialY , initialUsers, initialAvatars}: EntityAnimationProps) => {
@@ -21,15 +23,15 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const characterRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({x : initialX, y: initialY})
     const [usersInRoom, setUsersInRoom] = useState<{id: string,x: number | undefined,y: number | undefined }[]>([]);
-    const [userAvatars, setUserAvatars] = useState<any>([]);
+    const [userAvatars, setUserAvatars] = useState<{id : string, Avatar : SingleAvatarProps}[]>([]);
 
     useEffect(() => {
-        if (initialX != null && initialY != null && initialUsers) {
+        if (initialX != null && initialY != null && initialUsers != null) {
             setPosition({ x: initialX, y: initialY });
             setUsersInRoom(initialUsers);
             setUserAvatars(initialAvatars);
         }
-    }, [initialX, initialY]);
+    }, [initialX, initialY, initialAvatars, initialUsers]);
 
     useEffect(() => {
 
@@ -86,10 +88,9 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             setIsRunning(false);
         }
 
-        const messageHandler = (e : any) => {
+        const messageHandler = async (e : any) => {
             try {
                 const parsedData = JSON.parse(e.data);
-           //     console.log(parsedData);
                 if (parsedData.type === "space-joined") {
                     setPosition({x  : parsedData.payload.x, y : parsedData.payload.y})
                 }
@@ -99,6 +100,8 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                 if (parsedData.type === "user-joined") {
                     const newUser = parsedData.payload;
                     setUsersInRoom(prevState => [...prevState, newUser]);
+                 //   const res = await fetchAvatars([newUser.id]);
+                 //   setUserAvatars(prevState => [...prevState, res[0]]);
                 }
                 if (parsedData.type === "user-left") {
                     const userToRemove = parsedData.payload.userId
@@ -113,7 +116,6 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                                 : user
                         )
                     );
-
                 }
             } catch (err) {
                 console.error("Failed to parse message:", err, e.data);
@@ -129,7 +131,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             window.removeEventListener("keyup", handleStop);
             socket.removeEventListener("message", messageHandler);
         };
-    }, [socket, isLoading, position, initialAvatars]);
+    }, [socket, isLoading, position]);
 
     useEffect(() => {
         setLoading(true);
@@ -168,6 +170,10 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
         imageRendering: 'pixelated' as 'pixelated',
         left: `${position.x}px`, top: `${position.y}px`, zIndex: 2
     };
+
+    console.log("users in room",usersInRoom);
+    console.log("avatars", userAvatars);
+
     return (
             <div ref={characterRef} style={style} className="absolute"></div>
     );

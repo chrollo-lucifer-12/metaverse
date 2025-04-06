@@ -74,7 +74,7 @@ export const updateProfile = async (username : string | null, email : string | n
 
 export const fetchAvatars = async (userIds : {id : string}[]) => {
     try {
-        const res =  await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/avatars/bulk`, {
+        const res =  await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/avatars/bulk`, {
             ids : userIds
         })
         return res.data.avatars

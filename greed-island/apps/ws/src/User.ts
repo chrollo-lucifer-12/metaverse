@@ -18,6 +18,7 @@ export class User {
     private spaceId?: string
     private x? : number
     private y? : number
+    private username ?: string
 
     constructor(ws: WebSocket, ) {
         this.ws = ws;
@@ -59,6 +60,7 @@ export class User {
                         return;
                     }
                     this.userId = user.id
+                    this.username = user.username
                     const space = await prisma.space.findUnique({where: {id: spaceId}})
                     if (!space) {
                         this.ws.close();
@@ -77,13 +79,14 @@ export class User {
                         payload: {
                             x: this.x,
                             y: this.y,
-                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) => ({id: u.id, x : u.x, y : u.y})) ?? []
+                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) => ({id: u.userId, username : u.username, x : u.x, y : u.y})) ?? []
                         }
                     })
                     RoomManager.getInstance().broadcast({
                         type: "user-joined",
                         payload: {
-                            userId: this.userId,
+                            id: this.userId,
+                            username : this.username,
                             x: this.x,
                             y: this.y
                         }
@@ -102,7 +105,7 @@ export class User {
                         RoomManager.getInstance().broadcast({
                             type: "user-move",
                             payload: {
-                                userId: this.userId,
+                                id: this.userId,
                                 x: this.x,
                                 y: this.y
                             }
@@ -130,7 +133,7 @@ export class User {
         RoomManager.getInstance().broadcast({
             type : "user-left",
             payload : {
-                userId : this.userId
+                id : this.userId
             }
         }, this, this.spaceId!)
         RoomManager.getInstance().removeUser(this,this.spaceId!)
