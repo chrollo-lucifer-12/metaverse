@@ -1,6 +1,10 @@
+"use client"
+
+
 import { useEffect, useRef, useState } from "react";
 import {fetchAvatars} from "@/actions/user";
 import {SingleAvatarProps} from "@/types";
+import OtherCharacter from "@/components/character/OtherCharacter";
 
 interface EntityAnimationProps {
     idleSpritesheet: string;
@@ -16,39 +20,38 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const [loading, setLoading] = useState(true);
     const [frameData, setFrameData] = useState<any>(null);
     const [isRunning, setIsRunning] = useState(false);
-    const characterRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState<{x : number, y : number} | null>(null)
-    const [usersInRoom, setUsersInRoom] = useState<{id: string,x: number | undefined,y: number | undefined }[]>([]);
-    const [userAvatars, setUserAvatars] = useState<{id : string, Avatar : SingleAvatarProps}[]>([]);
+    const [position, setPosition] = useState<{ x: number, y: number } | null>(null)
+    const [usersInRoom, setUsersInRoom] = useState<{ id: string, x: number | undefined, y: number | undefined }[]>([]);
+    const [userAvatars, setUserAvatars] = useState<{ id: string, Avatar: SingleAvatarProps }[]>([]);
     const [isFetchingAvatar, setIsFetchingAvatar] = useState<boolean>(false);
 
     useEffect(() => {
         const handleMove = (e: KeyboardEvent) => {
 
-            function sendUpdate (x : number, y : number) {
+            function sendUpdate(x: number, y: number) {
                 setIsRunning(true);
                 socket.send(JSON.stringify({
-                    type : "move",
-                    payload : {
-                        x : position!.x + x,
-                        y : position!.y! + y
+                    type: "move",
+                    payload: {
+                        x: position!.x + x,
+                        y: position!.y! + y
                     }
                 }))
-                setPosition(prevState => ({x : prevState!.x + x, y : prevState!.y! + y}));
+                setPosition(prevState => ({x: prevState!.x + x, y: prevState!.y! + y}));
             }
 
 
             if (e.key === "W" || e.key === "w") {
-                sendUpdate(0,-1);
+                sendUpdate(0, -1);
             }
-            if (e.key === "s" || e.key==="S") {
-                sendUpdate(0,1);
+            if (e.key === "s" || e.key === "S") {
+                sendUpdate(0, 1);
             }
-            if (e.key === "d" || e.key==="D") {
-                sendUpdate(1,0);
+            if (e.key === "d" || e.key === "D") {
+                sendUpdate(1, 0);
             }
-            if (e.key === "a" || e.key==="A") {
-                sendUpdate(-1,0);
+            if (e.key === "a" || e.key === "A") {
+                sendUpdate(-1, 0);
             }
         };
 
@@ -67,10 +70,10 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
         }
 
 
-    },[position,socket])
+    }, [position])
 
     useEffect(() => {
-        const messageHandler = async (e : any) => {
+        const messageHandler = async (e: any) => {
             const parsedData = JSON.parse(e.data);
             switch (parsedData.type) {
                 case "space-joined" : {
@@ -141,7 +144,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
 
             socket.removeEventListener("message", messageHandler);
         };
-    }, [socket]);
+    }, []);
 
     useEffect(() => {
         setLoading(true);
@@ -175,22 +178,43 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const frameNames = Object.keys(frameData.frames);
     const frame = frameData.frames[frameNames[currentFrame]];
 
-    console.log(frame);
 
     const style = {
         width: `${frame.sourceSize.w}px`,
         height: `${frame.sourceSize.h}px`,
         backgroundImage: `url(${isRunning ? runningSpritesheet : idleSpritesheet})`,
-         backgroundPosition: `-${frame.frame.x}px -${frame.frame.y}px`,
-         backgroundSize: `${frameData.meta.size.w}px ${frameData.meta.size.h}px`,
+        backgroundPosition: `-${frame.frame.x}px -${frame.frame.y}px`,
+        backgroundSize: `${frameData.meta.size.w}px ${frameData.meta.size.h}px`,
         imageRendering: 'pixelated' as 'pixelated',
         left: `${position!.x}px`, top: `${position!.y}px`, zIndex: 2
     };
 
+    console.log(usersInRoom);
 
     return (
-            <div ref={characterRef} style={style} className="absolute"></div>
+        <>
+            <div style={style} className="absolute"></div>
+            <div>
+                {
+                   userAvatars.length && usersInRoom.length  && userAvatars.map((userAvatar) => {
+
+                        const findUser = usersInRoom.map((user) => {
+                            if (user.id === userAvatar.id) {
+                                return user;
+                            }
+                        })
+
+                        const position = {x : findUser[0]!.x!, y : findUser[0]!.y!};
+
+                        return <OtherCharacter key={userAvatar.id} idleSpritesheet={userAvatar.Avatar.imageUrl}
+                                        idleJson={userAvatar.Avatar.idleJson}
+                                        runningSpritesheet={userAvatar.Avatar.imageUrl2}
+                                        runningJson={userAvatar.Avatar.runningJson} position={position}/>
+                    })
+                }
+            </div>
+        </>
     );
-};
+}
 
 export default Character;
