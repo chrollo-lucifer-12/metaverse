@@ -9,78 +9,46 @@ interface EntityAnimationProps {
     runningJson: any;
     socket : WebSocket
     isLoading : boolean
-    initialX : number | null
-    initialY : number | null
-    initialUsers : {id: string,x: number | undefined,y: number | undefined }[] | null
-    initialAvatars : {id : string, Avatar : SingleAvatarProps}[]
 }
 
-const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading, initialX, initialY , initialUsers, initialAvatars}: EntityAnimationProps) => {
+const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading}: EntityAnimationProps) => {
     const [currentFrame, setCurrentFrame] = useState(0);
     const [loading, setLoading] = useState(true);
     const [frameData, setFrameData] = useState<any>(null);
     const [isRunning, setIsRunning] = useState(false);
     const characterRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState({x : initialX, y: initialY})
+    const [position, setPosition] = useState<{x : number, y : number} | null>(null)
     const [usersInRoom, setUsersInRoom] = useState<{id: string,x: number | undefined,y: number | undefined }[]>([]);
     const [userAvatars, setUserAvatars] = useState<{id : string, Avatar : SingleAvatarProps}[]>([]);
+    const [isFetchingAvatar, setIsFetchingAvatar] = useState<boolean>(false);
 
     useEffect(() => {
-        if (initialX != null && initialY != null && initialUsers != null) {
-            setPosition({ x: initialX, y: initialY });
-            setUsersInRoom(initialUsers);
-            setUserAvatars(initialAvatars);
-        }
-    }, [initialX, initialY, initialAvatars, initialUsers]);
-
-    useEffect(() => {
-
-        if (!socket || isLoading || socket.readyState !== WebSocket.OPEN) return ;
-
         const handleMove = (e: KeyboardEvent) => {
-            if (e.key === "W" || e.key === "w") {
+
+            function sendUpdate (x : number, y : number) {
                 setIsRunning(true);
                 socket.send(JSON.stringify({
                     type : "move",
                     payload : {
-                        x : position.x,
-                        y : position.y! - 1
+                        x : position!.x + x,
+                        y : position!.y! + y
                     }
                 }))
-                setPosition(prevState => ({x : prevState.x, y : prevState.y! - 1}));
+                setPosition(prevState => ({x : prevState!.x + x, y : prevState!.y! + y}));
+            }
+
+
+            if (e.key === "W" || e.key === "w") {
+                sendUpdate(0,-1);
             }
             if (e.key === "s" || e.key==="S") {
-                setIsRunning(true);
-                socket.send(JSON.stringify({
-                    type : "move",
-                    payload : {
-                        x : position.x,
-                        y : position.y! + 1
-                    }
-                }))
-                setPosition(prevState => ({x : prevState.x, y : prevState.y! + 1}));
+                sendUpdate(0,1);
             }
             if (e.key === "d" || e.key==="D") {
-                setIsRunning(true);
-                socket.send(JSON.stringify({
-                    type : "move",
-                    payload : {
-                        x : position.x! + 1,
-                        y : position.y
-                    }
-                }))
-                setPosition(prevState => ({x : prevState.x! + 1, y : prevState.y}));
+                sendUpdate(1,0);
             }
             if (e.key === "a" || e.key==="A") {
-                setIsRunning(true);
-                socket.send(JSON.stringify({
-                    type : "move",
-                    payload : {
-                        x : position.x! - 1,
-                        y : position.y
-                    }
-                }))
-                setPosition(prevState => ({x : prevState.x! - 1, y : prevState.y }));
+                sendUpdate(-1,0);
             }
         };
 
@@ -88,60 +56,102 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             setIsRunning(false);
         }
 
-        const messageHandler = async (e : any) => {
-            try {
-                const parsedData = JSON.parse(e.data);
-                if (parsedData.type === "space-joined") {
-                    setPosition({x  : parsedData.payload.x, y : parsedData.payload.y})
-                }
-                if (parsedData.type === "move-rejected") {
-                    setPosition({x : parsedData.payload.x, y : parsedData.payload.y});
-                }
-                if (parsedData.type === "user-joined") {
-                    const newUser = parsedData.payload;
-                    setUsersInRoom(prevState => [...prevState, newUser]);
-                 //   const res = await fetchAvatars([newUser.id]);
-                 //   setUserAvatars(prevState => [...prevState, res[0]]);
-                }
-                if (parsedData.type === "user-left") {
-                    const userToRemove = parsedData.payload.userId
-                    setUsersInRoom(prevState => prevState.filter(user => user.id !== userToRemove));
-                }
-                if (parsedData.type === "user-move") {
-                    const userMoved = parsedData.payload;
-                    setUsersInRoom(prevState =>
-                        prevState.map(user =>
-                            user.id === userMoved.id
-                                ? { ...user, x: userMoved.x, y: userMoved.y }
-                                : user
-                        )
-                    );
-                }
-            } catch (err) {
-                console.error("Failed to parse message:", err, e.data);
-            }
-        };
 
         window.addEventListener("keydown", handleMove);
         window.addEventListener("keyup", handleStop);
-        socket.addEventListener("message", messageHandler);
+
 
         return () => {
             window.removeEventListener("keydown", handleMove);
             window.removeEventListener("keyup", handleStop);
+        }
+
+
+    },[position,socket])
+
+    useEffect(() => {
+        const messageHandler = async (e : any) => {
+            const parsedData = JSON.parse(e.data);
+            switch (parsedData.type) {
+                case "space-joined" : {
+                    const {x, y, users} = parsedData.payload;
+                    setPosition({x, y});
+                    setUsersInRoom(users);
+                    let ids = [];
+                    for (const user of users) {
+                        ids.push(user.id);
+                    }
+                    setIsFetchingAvatar(true);
+                    const res = await fetchAvatars(ids);
+                    setUserAvatars(res);
+                    setIsFetchingAvatar(false);
+                    break
+                }
+                case "move-rejected" : {
+                    setPosition({x: parsedData.payload.x, y: parsedData.payload.y});
+                    break
+                }
+                case "user-joined" : {
+                    const newUser = parsedData.payload;
+                    console.log("user joined : ", newUser.username);
+                    setUsersInRoom(prevUsers => {
+                        if (!prevUsers.some(user => user.id === newUser.id)) {
+                            return [...prevUsers, newUser];
+                        }
+                        return prevUsers;
+                    });
+                    try {
+                        const res = await fetchAvatars([newUser.id]);
+                        if (res && res.length > 0) {
+                            setUserAvatars(prevAvatars => [...prevAvatars, res[0]]);
+                        }
+                    } catch (error) {
+                        console.error("Failed to fetch avatar:", error);
+                    }
+                    break
+                }
+                case "user-left" : {
+                    const userToRemove = parsedData.payload.userId
+                    setUsersInRoom(prevState => prevState.filter(user => user.id !== userToRemove));
+                    setUserAvatars(prevAvatars => prevAvatars.filter(avatar => avatar.id !== userToRemove));
+                    break
+                }
+                case "user-move" : {
+                    console.log("user moved")
+                    const userMoved = parsedData.payload;
+                    setUsersInRoom(prevState =>
+                        prevState.map(user =>
+                            user.id === userMoved.id
+                                ? {...user, x: userMoved.x, y: userMoved.y}
+                                : user
+                        )
+                    );
+                    break
+                }
+                default: {
+                    break
+                }
+            }
+        }
+
+
+        socket.addEventListener("message", messageHandler);
+
+        return () => {
+
             socket.removeEventListener("message", messageHandler);
         };
-    }, [socket, isLoading, position]);
+    }, [socket]);
 
     useEffect(() => {
         setLoading(true);
         setFrameData(isRunning ? runningJson : idleJson);
         setCurrentFrame(0);
         setLoading(false);
-    }, [idleJson, runningJson, isRunning,]);
+    }, [isRunning]);
 
     useEffect(() => {
-        if (loading) return;
+        if (!frameData) return;
         const frameNames = Object.keys(frameData.frames);
         const frameDuration = frameData.frames[frameNames[currentFrame]]?.duration || 100;
         const timer = setTimeout(() => {
@@ -152,14 +162,20 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
         }, frameDuration);
 
         return () => clearTimeout(timer);
-    }, [frameData, currentFrame, loading]);
+    }, [frameData, currentFrame]);
 
-    if (loading || !frameData) {
+    if (loading || !frameData || !position) {
         return null;
+    }
+
+    if (isFetchingAvatar) {
+        return <p>fetching avatar...</p>
     }
 
     const frameNames = Object.keys(frameData.frames);
     const frame = frameData.frames[frameNames[currentFrame]];
+
+    console.log(frame);
 
     const style = {
         width: `${frame.sourceSize.w}px`,
@@ -168,11 +184,9 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
          backgroundPosition: `-${frame.frame.x}px -${frame.frame.y}px`,
          backgroundSize: `${frameData.meta.size.w}px ${frameData.meta.size.h}px`,
         imageRendering: 'pixelated' as 'pixelated',
-        left: `${position.x}px`, top: `${position.y}px`, zIndex: 2
+        left: `${position!.x}px`, top: `${position!.y}px`, zIndex: 2
     };
 
-    console.log("users in room",usersInRoom);
-    console.log("avatars", userAvatars);
 
     return (
             <div ref={characterRef} style={style} className="absolute"></div>

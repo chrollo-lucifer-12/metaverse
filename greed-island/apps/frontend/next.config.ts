@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
     images : {
-        domains : ["github.com", "toianujjbhtfxspkyjgv.supabase.co"]
+        remotePatterns : [{hostname : "github.com"}, {hostname : "toianujjbhtfxspkyjgv.supabase.co"}]
     }
 };
 

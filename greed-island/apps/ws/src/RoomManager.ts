@@ -1,5 +1,4 @@
 import {User} from "./User";
-import {WebSocket} from "ws"
 import {OutgoingMessage} from "./types";
 
 
@@ -19,11 +18,11 @@ export class RoomManager {
     }
 
     public addUser(spaceId: string, user: User) {
+        console.log("user added to", spaceId);
         if (!this.rooms.has(spaceId)) {
             this.rooms.set(spaceId, [user]);
             return;
         }
-        console.log("user added");
         this.rooms.set(spaceId, [...(this.rooms.get(spaceId) ?? []), user])
     }
 
@@ -34,11 +33,11 @@ export class RoomManager {
         this.rooms.set(spaceId, this.rooms.get(spaceId)?.filter((u) => u.id !== user.id) ?? []);
     }
 
-    public broadcast(message : OutgoingMessage, user : User, roomId : string) {
+    public broadcast(message : any, user : User, roomId : string) {
         if (!this.rooms.has(roomId)) {
             return;
         }
-        console.log(message);
+        console.log( "broadcasting message" , message.type);
         this.rooms.get(roomId)?.forEach((u) => {
             if (u.id !== user.id) {
                 u.send(JSON.stringify(message))

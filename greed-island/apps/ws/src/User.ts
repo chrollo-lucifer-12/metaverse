@@ -79,7 +79,7 @@ export class User {
                         payload: {
                             x: this.x,
                             y: this.y,
-                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) => ({id: u.userId, username : u.username, x : u.x, y : u.y})) ?? []
+                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) =>  ({id: u.userId, username : u.username, x : u.x, y : u.y})) ?? []
                         }
                     })
                     RoomManager.getInstance().broadcast({
@@ -140,6 +140,7 @@ export class User {
     }
 
     send(payload : any) {
+        console.log("sending to", this.username);
         this.ws.send(JSON.stringify(payload));
     }
 }
