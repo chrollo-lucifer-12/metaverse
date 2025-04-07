@@ -19,16 +19,17 @@ enum ROLE {
 }
 
 model User {
-  id       String  @id @unique @default(uuid())
-  username String  @unique
-  clerkId  String  @unique
-  email    String  @unique
+  id       String    @id @unique @default(uuid())
+  username String    @unique
+  clerkId  String    @unique
+  email    String    @unique
   imageUrl String?
   avatarId String
   role     ROLE
   spaces   Space[]
-  Avatar   Avatar  @relation(fields: [avatarId], references: [id])
+  Avatar   Avatar    @relation(fields: [avatarId], references: [id])
   Member   Member?
+  Message  Message[]
 }
 
 model Space {
@@ -43,6 +44,17 @@ model Space {
   mapId         String
   map           Map             @relation(fields: [mapId], references: [id])
   Member        Member[]
+  Message       Message[]
+}
+
+model Message {
+  id        String   @id @unique @default(uuid())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  space     Space    @relation(fields: [spaceId], references: [id])
+  spaceId   String   @unique
+  createdAt DateTime @default(now())
 }
 
 model Member {

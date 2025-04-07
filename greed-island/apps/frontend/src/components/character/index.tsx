@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import {fetchAvatars} from "@/actions/user";
 import {SingleAvatarProps} from "@/types";
 import OtherCharacter from "@/components/character/OtherCharacter";
-import avatarAnimation from "@/components/animation/avatar-animation";
 
 interface EntityAnimationProps {
     idleSpritesheet: string;
@@ -25,6 +24,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const [usersInRoom, setUsersInRoom] = useState<{ id: string, username : string, x: number | undefined, y: number | undefined }[]>([]);
     const [userAvatars, setUserAvatars] = useState<{ id: string, Avatar: SingleAvatarProps }[]>([]);
     const [isFetchingAvatar, setIsFetchingAvatar] = useState<boolean>(false);
+    const [messages, setMessages] = useState<string[]>([]);
 
     useEffect(() => {
         const handleMove = (e: KeyboardEvent) => {

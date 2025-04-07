@@ -4,6 +4,7 @@ import userRouter from "./user/index.js";
 import spaceRouter from "./space/index.js";
 import adminRouter from "./admin/index.js";
 import {prisma} from "@repo/db/client"
+import messageRouter from "./message";
 
 
 const router : Router = express.Router();
@@ -13,6 +14,7 @@ router.use("/user", userRouter)
 router.use("/space", spaceRouter)
 //router.use("/arena", arenaRouter)
 router.use("/admin", adminRouter)
+router.use("/message", messageRouter);
 
 router.get("/avatars", async  (req, res) => {
     try {
