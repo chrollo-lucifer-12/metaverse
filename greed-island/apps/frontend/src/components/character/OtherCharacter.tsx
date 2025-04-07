@@ -40,8 +40,6 @@ const OtherCharacter = ({idleJson, idleSpritesheet, runningJson, runningSpritesh
     const frameNames = Object.keys(frameData.frames);
     const frame = frameData.frames[frameNames[currentFrame]];
 
-    console.log(frame);
-
     const style = {
         width: `${frame.sourceSize.w}px`,
         height: `${frame.sourceSize.h}px`,

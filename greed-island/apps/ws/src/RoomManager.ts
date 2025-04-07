@@ -40,7 +40,7 @@ export class RoomManager {
         console.log( "broadcasting message" , message.type);
         this.rooms.get(roomId)?.forEach((u) => {
             if (u.id !== user.id) {
-                u.send(JSON.stringify(message))
+                u.send(message)
             }
         })
     }

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import {fetchAvatars} from "@/actions/user";
 import {SingleAvatarProps} from "@/types";
 import OtherCharacter from "@/components/character/OtherCharacter";
+import avatarAnimation from "@/components/animation/avatar-animation";
 
 interface EntityAnimationProps {
     idleSpritesheet: string;
@@ -21,7 +22,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const [frameData, setFrameData] = useState<any>(null);
     const [isRunning, setIsRunning] = useState(false);
     const [position, setPosition] = useState<{ x: number, y: number } | null>(null)
-    const [usersInRoom, setUsersInRoom] = useState<{ id: string, x: number | undefined, y: number | undefined }[]>([]);
+    const [usersInRoom, setUsersInRoom] = useState<{ id: string, username : string, x: number | undefined, y: number | undefined }[]>([]);
     const [userAvatars, setUserAvatars] = useState<{ id: string, Avatar: SingleAvatarProps }[]>([]);
     const [isFetchingAvatar, setIsFetchingAvatar] = useState<boolean>(false);
 
@@ -75,6 +76,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     useEffect(() => {
         const messageHandler = async (e: any) => {
             const parsedData = JSON.parse(e.data);
+            console.log(parsedData);
             switch (parsedData.type) {
                 case "space-joined" : {
                     const {x, y, users} = parsedData.payload;
@@ -95,18 +97,12 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                     break
                 }
                 case "user-joined" : {
-                    const newUser = parsedData.payload;
-                    console.log("user joined : ", newUser.username);
-                    setUsersInRoom(prevUsers => {
-                        if (!prevUsers.some(user => user.id === newUser.id)) {
-                            return [...prevUsers, newUser];
-                        }
-                        return prevUsers;
-                    });
+                    const {user} = parsedData.payload;
+                    setUsersInRoom(prevUsers => [...prevUsers,user]);
                     try {
-                        const res = await fetchAvatars([newUser.id]);
+                        const res = await fetchAvatars([user.id]);
                         if (res && res.length > 0) {
-                            setUserAvatars(prevAvatars => [...prevAvatars, res[0]]);
+                            setUserAvatars(prevState => [...prevState, res[0]])
                         }
                     } catch (error) {
                         console.error("Failed to fetch avatar:", error);
@@ -114,13 +110,12 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                     break
                 }
                 case "user-left" : {
-                    const userToRemove = parsedData.payload.userId
+                    const userToRemove = parsedData.payload.id
                     setUsersInRoom(prevState => prevState.filter(user => user.id !== userToRemove));
                     setUserAvatars(prevAvatars => prevAvatars.filter(avatar => avatar.id !== userToRemove));
                     break
                 }
                 case "user-move" : {
-                    console.log("user moved")
                     const userMoved = parsedData.payload;
                     setUsersInRoom(prevState =>
                         prevState.map(user =>
@@ -144,7 +139,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
 
             socket.removeEventListener("message", messageHandler);
         };
-    }, []);
+    }, [idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading]);
 
     useEffect(() => {
         setLoading(true);
@@ -178,6 +173,8 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const frameNames = Object.keys(frameData.frames);
     const frame = frameData.frames[frameNames[currentFrame]];
 
+    console.log(usersInRoom);
+
 
     const style = {
         width: `${frame.sourceSize.w}px`,
@@ -189,30 +186,9 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
         left: `${position!.x}px`, top: `${position!.y}px`, zIndex: 2
     };
 
-    console.log(usersInRoom);
-
     return (
         <>
             <div style={style} className="absolute"></div>
-            <div>
-                {
-                   userAvatars.length && usersInRoom.length  && userAvatars.map((userAvatar) => {
-
-                        const findUser = usersInRoom.map((user) => {
-                            if (user.id === userAvatar.id) {
-                                return user;
-                            }
-                        })
-
-                        const position = {x : findUser[0]!.x!, y : findUser[0]!.y!};
-
-                        return <OtherCharacter key={userAvatar.id} idleSpritesheet={userAvatar.Avatar.imageUrl}
-                                        idleJson={userAvatar.Avatar.idleJson}
-                                        runningSpritesheet={userAvatar.Avatar.imageUrl2}
-                                        runningJson={userAvatar.Avatar.runningJson} position={position}/>
-                    })
-                }
-            </div>
         </>
     );
 }

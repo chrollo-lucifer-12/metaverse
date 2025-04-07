@@ -85,10 +85,12 @@ export class User {
                     RoomManager.getInstance().broadcast({
                         type: "user-joined",
                         payload: {
-                            id: this.userId,
-                            username : this.username,
-                            x: this.x,
-                            y: this.y
+                            user : {
+                                id: this.userId,
+                                username: this.username,
+                                x: this.x,
+                                y: this.y
+                            }
                         }
                     }, this, this.spaceId!)
                     break
