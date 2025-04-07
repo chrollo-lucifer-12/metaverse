@@ -30,4 +30,6 @@ export type MovePayload = {
     y : number
 }
 
+export type MessageProps =  {     content: string   ,  createdAt: Date  ,   user: {         username: string     } }[]
+
 export type AvatarProps = {  id : string,    imageUrl: string  ,   name: string }

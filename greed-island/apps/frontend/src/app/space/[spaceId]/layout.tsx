@@ -1,6 +1,6 @@
 import React from "react";
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
-import {fetchSpaceElements, verifySpace} from "@/actions/elements";
+import {fetchMessage, fetchSpaceElements, verifySpace} from "@/actions/elements";
 import {fetchUserProfile} from "@/actions/user";
 import NotFound from "@/components/not-found";
 
@@ -25,6 +25,11 @@ const Layout = async ({children, params} : {children : React.ReactNode, params :
     await query.prefetchQuery({
         queryKey : ["user-metadata"],
         queryFn : () => fetchUserProfile()
+    })
+
+    await query.prefetchQuery({
+        queryKey: ["space-messages"],
+        queryFn : () => fetchMessage(spaceId)
     })
 
     return <HydrationBoundary state={dehydrate(query)}>

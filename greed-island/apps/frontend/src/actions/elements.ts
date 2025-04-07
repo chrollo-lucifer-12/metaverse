@@ -214,3 +214,24 @@ export const verifySpace = async (spaceId : string) => {
         return false;
     }
 }
+
+export const fetchMessage = async (spaceId : string) => {
+    try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/message/${spaceId}`);
+        return res.data.messages;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+export const createMessage = async (spaceId : string, userId : string, content : string) => {
+    try {
+        await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/message/create`, {
+            spaceId,
+            userId,
+            content
+        })
+    } catch (e) {
+        console.log(e);
+    }
+}

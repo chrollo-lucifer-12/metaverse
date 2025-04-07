@@ -1,15 +1,18 @@
 "use client"
 
-import {SpaceElementProps, UserMetadata} from "@/types";
+import {MessageProps, SpaceElementProps, UserMetadata} from "@/types";
 import { Progress } from "@/components/ui/progress"
 import PropAnimation from "@/components/animation/prop-animation";
 import Character from "@/components/character";
 import {useSocket} from "@/hooks/useSocket";
+import {useQueryData} from "@/hooks/useQueryData";
+import {fetchMessage} from "@/actions/elements";
 
 const RenderSpace = ({spaceId, spaceElements, userMetadata, userId} : {spaceId : string, spaceElements : SpaceElementProps, userMetadata : UserMetadata, userId : string}) => {
 
 
     const {socket, isLoading, progress} = useSocket(spaceId, userId);
+
 
     if (!socket || isLoading) {
         return <div
