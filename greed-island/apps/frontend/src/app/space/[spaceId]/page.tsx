@@ -12,8 +12,11 @@ const Page = async ({params} : {params : {spaceId : string}}) => {
     const userData = await fetchUserProfile();
 
 
-
-    return <RenderSpace spaceId={spaceId} userId={user!.id} spaceElements={spaceElements} userMetadata={userData} />
+    return (
+        <div className={"flex justify-center items-center h-full"}>
+            <RenderSpace spaceId={spaceId} userId={user!.id} spaceElements={spaceElements} userMetadata={userData}/>
+        </div>
+    )
 }
 
 export default Page

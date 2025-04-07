@@ -189,6 +189,16 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     return (
         <>
             <div style={style} className="absolute"></div>
+            {
+                userAvatars.map((avatar) => {
+
+                    const user = usersInRoom.find(u => u.id === avatar.id);
+                    if (!user) return;
+
+                    return <OtherCharacter idleSpritesheet={avatar.Avatar.imageUrl} idleJson={avatar.Avatar.idleJson} runningSpritesheet={avatar.Avatar.imageUrl2} runningJson={avatar.Avatar.runningJson} position={{x : user.x!, y : user.y!}}/>
+
+                })
+            }
         </>
     );
 }
