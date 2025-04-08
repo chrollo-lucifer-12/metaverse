@@ -6,25 +6,24 @@ import Sidebar from "@/components/sidebar";
 const Layout = async ({children} : {children : React.ReactNode}) => {
     const query = new QueryClient();
 
-    await query.prefetchQuery({
-        queryKey : ["spaces"],
-        queryFn : () => fetchUserSpace()
-    })
-
-    await query.prefetchQuery({
-        queryKey : ["user-metadata"],
-        queryFn : () => fetchUserProfile()
-    })
-
-    await query.prefetchQuery({
-        queryKey: ["avatars"],
-        queryFn:  () => fetchAvatars()
-    })
-
-    await query.prefetchQuery({
-        queryKey: ["maps"],
-        queryFn: () => fetchMaps()
-    })
+    await Promise.all([
+        query.prefetchQuery({
+            queryKey: ["spaces"],
+            queryFn: () => fetchUserSpace(),
+        }),
+        query.prefetchQuery({
+            queryKey: ["user-metadata"],
+            queryFn: () => fetchUserProfile(),
+        }),
+        query.prefetchQuery({
+            queryKey: ["avatars"],
+            queryFn: () => fetchAvatars(),
+        }),
+        query.prefetchQuery({
+            queryKey: ["maps"],
+            queryFn: () => fetchMaps(),
+        }),
+    ]);
 
     return <HydrationBoundary state={dehydrate(query)}>
         <div className="flex h-screen w-screen bg-black text-white">

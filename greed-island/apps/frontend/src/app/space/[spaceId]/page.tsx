@@ -1,5 +1,5 @@
 import RenderSpace from "@/components/spaces/RenderSpace";
-import {fetchSpaceElements} from "@/actions/elements";
+import {fetchMessage, fetchSpaceElements} from "@/actions/elements";
 import {fetchUserProfile} from "@/actions/user";
 import {currentUser} from "@clerk/nextjs/server";
 
@@ -10,12 +10,13 @@ const Page = async ({params} : {params : {spaceId : string}}) => {
 
     const spaceElements = await fetchSpaceElements(spaceId);
     const userData = await fetchUserProfile();
+    const messages = await fetchMessage(spaceId);
 
 
     return (
-        <div className={"flex justify-center items-center h-full"}>
-            <RenderSpace spaceId={spaceId} userId={user!.id} spaceElements={spaceElements} userMetadata={userData}/>
-        </div>
+
+            <RenderSpace spaceId={spaceId} userId={user!.id} spaceElements={spaceElements} userMetadata={userData} messages={messages}/>
+
     )
 }
 

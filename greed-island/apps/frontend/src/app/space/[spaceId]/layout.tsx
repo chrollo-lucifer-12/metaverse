@@ -17,20 +17,17 @@ const Layout = async ({children, params} : {children : React.ReactNode, params :
 
     const query = new QueryClient();
 
-    await query.prefetchQuery({
-        queryKey : ["space-elements"],
-        queryFn : () => fetchSpaceElements(spaceId)
-    })
+    await Promise.all([
+        query.prefetchQuery({
+            queryKey: ["space-elements", spaceId],
+            queryFn: () => fetchSpaceElements(spaceId),
+        }),
+        query.prefetchQuery({
+            queryKey: ["user-metadata"],
+            queryFn: () => fetchUserProfile(),
+        }),
+    ]);
 
-    await query.prefetchQuery({
-        queryKey : ["user-metadata"],
-        queryFn : () => fetchUserProfile()
-    })
-
-    await query.prefetchQuery({
-        queryKey: ["space-messages"],
-        queryFn : () => fetchMessage(spaceId)
-    })
 
     return <HydrationBoundary state={dehydrate(query)}>
         <main>

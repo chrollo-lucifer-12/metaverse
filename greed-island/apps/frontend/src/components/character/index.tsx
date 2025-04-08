@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import {fetchAvatars} from "@/actions/user";
 import {SingleAvatarProps} from "@/types";
 import OtherCharacter from "@/components/character/OtherCharacter";
+import MessageBox from "@/components/message-box";
 
 interface EntityAnimationProps {
     idleSpritesheet: string;
@@ -173,8 +174,6 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const frameNames = Object.keys(frameData.frames);
     const frame = frameData.frames[frameNames[currentFrame]];
 
-    console.log(usersInRoom);
-
 
     const style = {
         width: `${frame.sourceSize.w}px`,
@@ -195,7 +194,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
                     const user = usersInRoom.find(u => u.id === avatar.id);
                     if (!user) return;
 
-                    return <OtherCharacter idleSpritesheet={avatar.Avatar.imageUrl} idleJson={avatar.Avatar.idleJson} runningSpritesheet={avatar.Avatar.imageUrl2} runningJson={avatar.Avatar.runningJson} position={{x : user.x!, y : user.y!}}/>
+                    return <OtherCharacter key={avatar.id} idleSpritesheet={avatar.Avatar.imageUrl} idleJson={avatar.Avatar.idleJson} runningSpritesheet={avatar.Avatar.imageUrl2} runningJson={avatar.Avatar.runningJson} position={{x : user.x!, y : user.y!}}/>
 
                 })
             }

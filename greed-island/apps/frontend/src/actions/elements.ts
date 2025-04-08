@@ -217,10 +217,11 @@ export const verifySpace = async (spaceId : string) => {
 
 export const fetchMessage = async (spaceId : string) => {
     try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/message/${spaceId}`);
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/message/${spaceId}`);
         return res.data.messages;
     } catch (e) {
         console.log(e);
+        return []
     }
 }
 

@@ -82,6 +82,9 @@ export class User {
                             users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) =>  ({id: u.userId, username : u.username, x : u.x, y : u.y})) ?? []
                         }
                     })
+
+                    await this.saveChat(`${this.username} joined`)
+
                     RoomManager.getInstance().broadcast({
                         type: "user-joined",
                         payload: {
@@ -125,13 +128,19 @@ export class User {
                         }
                     })
                     break
+                case "chat" : {
+                    const { content } = parsedData.payload;
+                    await this.saveChat(content);
+                    break
+                }
                 default:
                     break
             }
         })
     }
 
-    public destroy() {
+    public async destroy() {
+       await this.saveChat(`${this.username} left`)
         RoomManager.getInstance().broadcast({
             type : "user-left",
             payload : {
@@ -139,6 +148,43 @@ export class User {
             }
         }, this, this.spaceId!)
         RoomManager.getInstance().removeUser(this,this.spaceId!)
+    }
+
+    async saveChat (content : string) {
+        if (this.spaceId && this.userId) {
+            try {
+                const message = await prisma.message.create({
+                    data: {
+                        userId: this.userId!,
+                        spaceId: this.spaceId!,
+                        content: content
+                    }
+                })
+                RoomManager.getInstance().broadcast({
+                    type: "chat",
+                    payload: {
+                        content: `${this.username} left`,
+                        createdAt: message.createdAt,
+                        user: {
+                            username: this.username
+                        }
+                    }
+                }, this, this.spaceId!)
+                this.send({
+                    type : "chat",
+                    payload: {
+                        content: `${this.username} left`,
+                        createdAt: message.createdAt,
+                        user: {
+                            username: this.username
+                        }
+                    }
+                })
+            } catch (e) {
+                console.log(e);
+            }
+
+        }
     }
 
     send(payload : any) {
