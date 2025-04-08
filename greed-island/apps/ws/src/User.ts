@@ -83,7 +83,6 @@ export class User {
                         }
                     })
 
-                    await this.saveChat(`${this.username} joined`)
 
                     RoomManager.getInstance().broadcast({
                         type: "user-joined",
@@ -140,7 +139,6 @@ export class User {
     }
 
     public async destroy() {
-       await this.saveChat(`${this.username} left`)
         RoomManager.getInstance().broadcast({
             type : "user-left",
             payload : {
@@ -173,7 +171,7 @@ export class User {
                 this.send({
                     type : "chat",
                     payload: {
-                        content: `${this.username} left`,
+                        content,
                         createdAt: message.createdAt,
                         user: {
                             username: this.username
