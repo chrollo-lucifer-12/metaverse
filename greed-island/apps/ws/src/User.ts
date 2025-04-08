@@ -166,7 +166,7 @@ export class User {
                         user: {
                             username: this.username
                         }
-                    }
+                    },
                 }, this, this.spaceId!)
                 this.send({
                     type : "chat",
@@ -176,7 +176,8 @@ export class User {
                         user: {
                             username: this.username
                         }
-                    }
+                    },
+                    sentAt : Date.now()
                 })
             } catch (e) {
                 console.log(e);

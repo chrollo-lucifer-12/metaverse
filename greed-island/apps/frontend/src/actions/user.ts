@@ -2,6 +2,7 @@
 
 import {currentUser} from "@clerk/nextjs/server";
 import axios from "axios";
+import {getCache, setCache} from "../lib/cache"
 
 export const onAuthenticateUser = async () => {
     try {
@@ -28,12 +29,23 @@ export const fetchUserSpace = async () => {
     try {
         const user = await currentUser();
         if (!user) return [];
+
+        const cacheKey = `user:${user.id}:spaces`
+
+        const cachedData = await getCache(cacheKey);
+        if (cachedData) {
+            return cachedData;
+        }
+        console.log("hitting db");
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/space/all`, {
             headers : {
                 clerkId : user.id
             }
         })
-        return res.data.spaces;
+
+        const spaces = res.data.spaces;
+        await setCache(cacheKey, spaces, 1000);
+        return spaces;
     } catch (e) {
         console.log(e);
         return []
@@ -44,12 +56,26 @@ export const fetchUserProfile = async () => {
     try {
         const user = await currentUser();
         if (!user) return ;
+
+        const cacheKey = `$user:${user.id}:profile`
+
+        const cachedData = await getCache(cacheKey);
+        if (cachedData) {
+            return cachedData;
+        }
+
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/metadata`, {
             headers : {
                 clerkId : user.id
             }
         })
-        return res.data.user;
+
+        const profile = res.data.user;
+
+        await setCache(cacheKey, profile, 1000);
+
+        return profile
+
     } catch (e) {
         console.log(e);
         return ;

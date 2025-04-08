@@ -6,6 +6,8 @@ const Page = async () => {
 
     const query = new QueryClient();
 
+    const start = performance.now();
+
     await Promise.all([
         query.prefetchQuery({
             queryKey: ["spaces"],
@@ -24,6 +26,9 @@ const Page = async () => {
             queryFn: () => fetchMaps(),
         }),
     ]);
+
+    const end = performance.now();
+    console.log(`🔥 Prefetching took ${(end - start)}ms`);
 
     return <HydrationBoundary state={dehydrate(query)}> <div className={"text-white mt-8 ml-5"}>
         <div className="flex flex-col gap-y-2">

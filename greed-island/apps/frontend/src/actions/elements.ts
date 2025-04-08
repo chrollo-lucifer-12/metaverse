@@ -3,11 +3,23 @@
 import axios from "axios";
 import { supabase } from "../lib/utils"
 import {currentUser} from "@clerk/nextjs/server";
+import {getCache, setCache} from "../lib/cache"
+import character from "@/components/character";
 
 export const fetchAvatars = async () => {
     try {
+
+        const cacheKey = "avatars";
+
+        const cachedData = getCache(cacheKey);
+        if (cachedData) {
+            return cachedData;
+        }
+
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/avatars`);
-        return res.data.avatars;
+        const avatars = res.data.avatars;
+        await setCache(cacheKey,avatars,1000);
+        return avatars;
     } catch (e) {
         console.log(e);
         return [];
@@ -26,8 +38,16 @@ export const fetchElements = async () => {
 
 export const fetchMaps = async () => {
     try {
+        const cacheKey = "maps";
+
+        const cachedData = getCache(cacheKey);
+        if (cachedData) {
+            return cachedData;
+        }
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/maps`);
-        return res.data.maps;
+        const maps =  res.data.maps;
+        await setCache(cacheKey,maps,1000);
+        return maps;
     } catch (e) {
         console.log(e);
         return [];
@@ -192,8 +212,11 @@ export const CreateSpace = async (name : string, dimensions : string, thumbnail 
 
 export const fetchSpaceElements = async (spaceId : string) => {
     try {
+
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/space/${spaceId}`);
-        return res.data.space
+        const elements =  res.data.space
+
+        return elements
     } catch (e) {
         console.log(e);
         return [];
@@ -218,7 +241,8 @@ export const verifySpace = async (spaceId : string) => {
 export const fetchMessage = async (spaceId : string) => {
     try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/message/${spaceId}`);
-        return res.data.messages;
+        const messages =  res.data.messages;
+        return messages
     } catch (e) {
         console.log(e);
         return []

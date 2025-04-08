@@ -12,8 +12,10 @@ const MessageBox = ({spaceId, userId, socket, messages } : {spaceId : string, us
     useEffect(() => {
         const messageHandler = (e : any) => {
             const parsedData = JSON.parse(e.data);
-            console.log("chat");
             if (parsedData.type === "chat") {
+                const receivedAt = Date.now();
+                const latency = receivedAt - parsedData.sentAt;
+                console.log("time took : ", latency);
                 setAllMessages(prevState => [parsedData.payload,...prevState]);
             }
         }
@@ -24,8 +26,6 @@ const MessageBox = ({spaceId, userId, socket, messages } : {spaceId : string, us
             socket.removeEventListener("message", messageHandler);
         }
     },[spaceId]);
-
-    console.log(allMessages);
 
     return <div className={"bg-black flex flex-col gap-y-3 text-white border-1 border-[#1c1b1e] absolute z-20 rounded-md"}>
         <div className={"h-[100px] bg-[#18181a] m-3 p-2 rounded-md overflow-auto"}>
