@@ -6,6 +6,7 @@ import {fetchAvatars} from "@/actions/user";
 import {SingleAvatarProps} from "@/types";
 import OtherCharacter from "@/components/character/OtherCharacter";
 import MessageBox from "@/components/message-box";
+import {useLiveKitClient} from "@/hooks/useLiveKitClient";
 
 interface EntityAnimationProps {
     idleSpritesheet: string;
@@ -26,6 +27,11 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const [userAvatars, setUserAvatars] = useState<{ id: string, Avatar: SingleAvatarProps }[]>([]);
     const [isFetchingAvatar, setIsFetchingAvatar] = useState<boolean>(false);
     const [messages, setMessages] = useState<string[]>([]);
+    const [livekitUrl, setLivekitUrl] = useState<string | null>(null);
+    const [livekitToken, setLivekitToken] = useState<string | null>(null);
+
+    // ✅ Call the hook here (top level)
+    const roomRef = useLiveKitClient(livekitUrl, livekitToken);
 
     useEffect(() => {
         const handleMove = (e: KeyboardEvent) => {
@@ -80,7 +86,9 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             console.log(parsedData);
             switch (parsedData.type) {
                 case "space-joined" : {
-                    const {x, y, users} = parsedData.payload;
+                    const {x, y, users, livekitToken, livekitUrl} = parsedData.payload;
+                    setLivekitToken(livekitToken);
+                    setLivekitUrl(livekitUrl);
                     setPosition({x, y});
                     setUsersInRoom(users);
                     let ids = [];

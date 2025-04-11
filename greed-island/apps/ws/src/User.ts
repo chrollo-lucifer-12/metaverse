@@ -1,6 +1,7 @@
 import {WebSocket} from "ws"
 import {RoomManager} from "./RoomManager";
 import {prisma} from "@repo/db/client";
+import {generateLiveKitToken} from "./utils/generateToken"
 
 function generateRandomString(length : number) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -74,16 +75,18 @@ export class User {
                         this.y = Math.max(0, Math.min(space.height - 1, Math.floor(Math.random() * space.height)));
                     } while (!(await this.isValidPosition(this.x, this.y)));
 
+                    const token = generateLiveKitToken(this.username!, spaceId);
+
                     this.send({
                         type: "space-joined",
                         payload: {
                             x: this.x,
                             y: this.y,
-                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) =>  ({id: u.userId, username : u.username, x : u.x, y : u.y})) ?? []
+                            users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) =>  ({id: u.userId, username : u.username, x : u.x, y : u.y})) ?? [],
+                            livekitToken : token,
+                            livekitUrl : "wss://metaverse-x38rb6ew.livekit.cloud"
                         }
                     })
-
-
                     RoomManager.getInstance().broadcast({
                         type: "user-joined",
                         payload: {

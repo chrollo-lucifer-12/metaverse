@@ -1,5 +1,7 @@
 import { WebSocketServer } from 'ws';
 import { User } from "./User";
+import dotenv from "dotenv";
+dotenv.config();
 
 const wss = new WebSocketServer({ port: 8080 });
 
