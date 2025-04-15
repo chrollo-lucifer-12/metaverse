@@ -8,7 +8,7 @@ const Layout = async ({children} : Props) => {
 
 
 
-    return <div className="flex flex-col xl:px-0">
+    return <div>
         {children}
     </div>
 }
