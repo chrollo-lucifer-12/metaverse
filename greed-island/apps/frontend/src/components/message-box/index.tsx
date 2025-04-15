@@ -15,7 +15,6 @@ const MessageBox = ({spaceId, userId, socket, messages } : {spaceId : string, us
             if (parsedData.type === "chat") {
                 const receivedAt = Date.now();
                 const latency = receivedAt - parsedData.sentAt;
-                console.log("time took : ", latency);
                 setAllMessages(prevState => [parsedData.payload,...prevState]);
             }
         }

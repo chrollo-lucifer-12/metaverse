@@ -1,8 +1,9 @@
 "use client"
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {fetchAvatars} from "@/actions/user";
 import {SingleAvatarProps} from "@/types";
 import OtherCharacter from "@/components/character/OtherCharacter";
+import VideoElement from "@/components/video-element";
 
 interface EntityAnimationProps {
     idleSpritesheet: string;
@@ -23,7 +24,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const [usersInRoom, setUsersInRoom] = useState<{ id: string, username : string, x: number | undefined, y: number | undefined }[]>([]);
     const [userAvatars, setUserAvatars] = useState<{ id: string, Avatar: SingleAvatarProps }[]>([]);
     const [isFetchingAvatar, setIsFetchingAvatar] = useState<boolean>(false);
-
+    const myIdRef = useRef<string>("");
 
     useEffect(() => {
         const handleMove = (e: KeyboardEvent) => {
@@ -78,9 +79,10 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             console.log(parsedData);
             switch (parsedData.type) {
                 case "space-joined" : {
-                    const {x, y, users} = parsedData.payload;
+                    const {x, y, users, id }= parsedData.payload;
                     setPosition({x, y});
                     setUsersInRoom(users);
+                    myIdRef.current = id
                     let ids = [];
                     for (const user of users) {
                         ids.push(user.id);
@@ -186,6 +188,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
 
     return (
         <>
+            <VideoElement socket={socket} myId={myIdRef.current} usersInRoom={usersInRoom}/>
             <div style={style} className="absolute"></div>
             {
                 userAvatars.map((avatar) => {

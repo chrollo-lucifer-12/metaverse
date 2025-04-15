@@ -3,22 +3,13 @@
 import axios from "axios";
 import { supabase } from "../lib/utils"
 import {currentUser} from "@clerk/nextjs/server";
-import {getCache, setCache} from "../lib/cache"
-import character from "@/components/character";
 
 export const fetchAvatars = async () => {
     try {
 
-        const cacheKey = "avatars";
-
-        const cachedData = getCache(cacheKey);
-        if (cachedData) {
-            return cachedData;
-        }
 
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/avatars`);
         const avatars = res.data.avatars;
-        await setCache(cacheKey,avatars,1000);
         return avatars;
     } catch (e) {
         console.log(e);
@@ -38,15 +29,10 @@ export const fetchElements = async () => {
 
 export const fetchMaps = async () => {
     try {
-        const cacheKey = "maps";
 
-        const cachedData = getCache(cacheKey);
-        if (cachedData) {
-            return cachedData;
-        }
+
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/maps`);
         const maps =  res.data.maps;
-        await setCache(cacheKey,maps,1000);
         return maps;
     } catch (e) {
         console.log(e);

@@ -79,6 +79,7 @@ export class User {
                         payload: {
                             x: this.x,
                             y: this.y,
+                            id : this.userId,
                             users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) =>  ({id: u.userId, username : u.username, x : u.x, y : u.y})) ?? [],
                         }
                     })
@@ -130,6 +131,65 @@ export class User {
                     await this.saveChat(content);
                     break
                 }
+                case "video-offer": {
+                    const { offer } = parsedData.payload;
+                    const usersInRoom = RoomManager.getInstance().rooms.get(this.spaceId!) || [];
+
+                    // Broadcast the video offer to all other users in the room
+                    usersInRoom.forEach(user => {
+                        if (user.id !== this.id) {  // Don't send the offer to the user who sent it
+                            user.send({
+                                type: "video-offer",
+                                payload: {
+                                    offer,
+                                    fromId: this.id,
+                                    username: this.username
+                                }
+                            });
+                        }
+                    });
+                    break;
+                }
+
+                case "video-answer": {
+                    const { answer } = parsedData.payload;
+                    const usersInRoom = RoomManager.getInstance().rooms.get(this.spaceId!) || [];
+
+                    // Broadcast the video answer to all other users in the room
+                    usersInRoom.forEach(user => {
+                        if (user.id !== this.id) {  // Don't send the answer to the user who sent it
+                            user.send({
+                                type: "video-answer",
+                                payload: {
+                                    answer,
+                                    fromId: this.id
+                                }
+                            });
+                        }
+                    });
+                    break;
+                }
+
+                case "ice-candidate": {
+                    const { candidate } = parsedData.payload;
+                    const usersInRoom = RoomManager.getInstance().rooms.get(this.spaceId!) || [];
+
+                    // Broadcast the ICE candidate to all other users in the room
+                    usersInRoom.forEach(user => {
+                        if (user.id !== this.id) {  // Don't send the candidate to the user who sent it
+                            user.send({
+                                type: "ice-candidate",
+                                payload: {
+                                    candidate,
+                                    fromId: this.id
+                                }
+                            });
+                        }
+                    });
+                    break;
+                }
+
+
                 default:
                     break
             }

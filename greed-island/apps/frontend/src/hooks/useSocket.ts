@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchAvatars } from "@/actions/user";
-import {SingleAvatarProps} from "@/types";
-
 export const useSocket = (spaceId: string, clerkId: string | null | undefined) => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +30,7 @@ export const useSocket = (spaceId: string, clerkId: string | null | undefined) =
         };
 
         ws.onerror = (error) => {
-            console.error(error);
+
         };
 
         setSocket(ws);
