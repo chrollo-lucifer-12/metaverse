@@ -8,7 +8,7 @@ const AuthPage = async () => {
         return redirect("/")
     }
 
-    return redirect("/auth/sign-in")
+     redirect("/auth/sign-in")
 }
 
 export default AuthPage

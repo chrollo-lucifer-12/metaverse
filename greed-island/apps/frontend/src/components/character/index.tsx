@@ -1,11 +1,8 @@
 "use client"
-
-
-import { useEffect, useRef, useState } from "react";
+import {useEffect, useState} from "react";
 import {fetchAvatars} from "@/actions/user";
 import {SingleAvatarProps} from "@/types";
 import OtherCharacter from "@/components/character/OtherCharacter";
-import {useLiveKitClient} from "@/hooks/useLiveKitClient";
 
 interface EntityAnimationProps {
     idleSpritesheet: string;
@@ -14,9 +11,10 @@ interface EntityAnimationProps {
     runningJson: any;
     socket : WebSocket
     isLoading : boolean
+    spaceId : string
 }
 
-const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading}: EntityAnimationProps) => {
+const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson, socket, isLoading, spaceId}: EntityAnimationProps) => {
     const [currentFrame, setCurrentFrame] = useState(0);
     const [loading, setLoading] = useState(true);
     const [frameData, setFrameData] = useState<any>(null);
@@ -25,11 +23,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const [usersInRoom, setUsersInRoom] = useState<{ id: string, username : string, x: number | undefined, y: number | undefined }[]>([]);
     const [userAvatars, setUserAvatars] = useState<{ id: string, Avatar: SingleAvatarProps }[]>([]);
     const [isFetchingAvatar, setIsFetchingAvatar] = useState<boolean>(false);
-    const [livekitUrl, setLivekitUrl] = useState<string | null>(null);
-    const [livekitToken, setLivekitToken] = useState<string | null>(null);
 
-    // ✅ Call the hook here (top level)
-    const roomRef = useLiveKitClient(livekitUrl, livekitToken);
 
     useEffect(() => {
         const handleMove = (e: KeyboardEvent) => {
@@ -84,9 +78,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
             console.log(parsedData);
             switch (parsedData.type) {
                 case "space-joined" : {
-                    const {x, y, users, livekitToken, livekitUrl} = parsedData.payload;
-                    setLivekitToken(livekitToken);
-                    setLivekitUrl(livekitUrl);
+                    const {x, y, users} = parsedData.payload;
                     setPosition({x, y});
                     setUsersInRoom(users);
                     let ids = [];
@@ -190,6 +182,7 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
         imageRendering: 'pixelated' as 'pixelated',
         left: `${position!.x}px`, top: `${position!.y}px`, zIndex: 2
     };
+
 
     return (
         <>

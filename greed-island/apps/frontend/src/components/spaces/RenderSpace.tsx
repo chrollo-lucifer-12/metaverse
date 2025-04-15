@@ -43,7 +43,7 @@ const RenderSpace = ({spaceId, spaceElements, userMetadata, userId, messages} : 
                 ))}
                 <Character idleSpritesheet={userMetadata.Avatar.imageUrl} idleJson={userMetadata.Avatar.idleJson}
                            runningSpritesheet={userMetadata.Avatar.imageUrl2} runningJson={userMetadata.Avatar.runningJson}
-                           socket={socket} isLoading={isLoading}/>
+                           socket={socket} isLoading={isLoading} spaceId={spaceId} />
             </div>
             <MessageBox spaceId={spaceId} userId={userId} socket={socket} messages={messages}/>
         </div>
