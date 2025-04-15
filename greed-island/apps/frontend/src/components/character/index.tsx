@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import {fetchAvatars} from "@/actions/user";
 import {SingleAvatarProps} from "@/types";
 import OtherCharacter from "@/components/character/OtherCharacter";
-import MessageBox from "@/components/message-box";
 import {useLiveKitClient} from "@/hooks/useLiveKitClient";
 
 interface EntityAnimationProps {
@@ -26,7 +25,6 @@ const Character = ({ idleJson, idleSpritesheet, runningSpritesheet, runningJson,
     const [usersInRoom, setUsersInRoom] = useState<{ id: string, username : string, x: number | undefined, y: number | undefined }[]>([]);
     const [userAvatars, setUserAvatars] = useState<{ id: string, Avatar: SingleAvatarProps }[]>([]);
     const [isFetchingAvatar, setIsFetchingAvatar] = useState<boolean>(false);
-    const [messages, setMessages] = useState<string[]>([]);
     const [livekitUrl, setLivekitUrl] = useState<string | null>(null);
     const [livekitToken, setLivekitToken] = useState<string | null>(null);
 

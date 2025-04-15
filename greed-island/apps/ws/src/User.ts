@@ -75,7 +75,17 @@ export class User {
                         this.y = Math.max(0, Math.min(space.height - 1, Math.floor(Math.random() * space.height)));
                     } while (!(await this.isValidPosition(this.x, this.y)));
 
-                    const token = generateLiveKitToken(this.username!, spaceId);
+                    let token;
+                    try {
+                        token = await generateLiveKitToken(this.username!, spaceId);
+                        console.log("Generated LiveKit token type:", typeof token);
+                    } catch (error) {
+                        console.error("Failed to generate LiveKit token:", error);
+                        token = null;
+                    }
+
+                    const livekitUrl = process.env.LIVEKIT_URL;
+                    console.log("Using LiveKit URL:", livekitUrl);
 
                     this.send({
                         type: "space-joined",
@@ -84,7 +94,7 @@ export class User {
                             y: this.y,
                             users: RoomManager.getInstance().rooms.get(spaceId)?.map((u) =>  ({id: u.userId, username : u.username, x : u.x, y : u.y})) ?? [],
                             livekitToken : token,
-                            livekitUrl : "wss://metaverse-x38rb6ew.livekit.cloud"
+                            livekitUrl
                         }
                     })
                     RoomManager.getInstance().broadcast({
@@ -164,7 +174,7 @@ export class User {
                 RoomManager.getInstance().broadcast({
                     type: "chat",
                     payload: {
-                        content: `${this.username} left`,
+                        content: content,
                         createdAt: message.createdAt,
                         user: {
                             username: this.username

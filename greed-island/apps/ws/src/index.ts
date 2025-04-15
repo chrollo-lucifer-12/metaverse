@@ -1,7 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { User } from "./User";
-import dotenv from "dotenv";
-dotenv.config();
+
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -12,8 +11,8 @@ wss.on('connection', function connection(ws) {
     ws.on('error', console.error);
     console.log("user joined");
 
-    ws.on("close", () => {
-        user.destroy();
+    ws.on("close", async () => {
+        await user.destroy();
     });
 
     ws.send('something');
